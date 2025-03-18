@@ -1,9 +1,9 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char* ssid = "Proximus-Home-5B08";
-const char* password = "wjx4k9ejnzwwu";
-const char* serverName = "http://192.168.1.4:5000/update";  // Controleer dit IP!
+const char* ssid = "naam van de wifi";
+const char* password = "passwoord van de wifi";
+const char* serverName = "http://IPADRESSVANPISERVER:5000/update";  // Controleer dit IP!
 
 const int potentiometerPin = 34;  // Verander naar GPIO34
 
