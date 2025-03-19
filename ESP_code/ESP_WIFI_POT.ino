@@ -25,7 +25,7 @@ void loop() {
   int potentiometerValue = analogRead(potentiometerPin);
  
 
-  int Angle = map(potentiometerValue, 0, 4095, 0, 230);
+  int Angle = map(potentiometerValue, 0, 4095, 0, 180);
 
   Serial.print("Gelezen waarde: ");
   Serial.print(potentiometerValue);
