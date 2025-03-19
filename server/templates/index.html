@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Potentiometer Dashboard</title>
+    <title>Brace Dashboard</title>
+    <!-- Chart.js toevoegen -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         body {
@@ -39,13 +39,27 @@
             margin: 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        .chart-container {
+        .gauge-container {
             position: relative;
+            width: 300px;
             height: 300px;
-            margin-top: 30px;
+            margin: 30px auto;
             background-color: #1a3d5c;
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .gauge-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 38px;
+            font-weight: bold;
+            color: #90caf9;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
         .footer {
             text-align: center;
@@ -53,59 +67,106 @@
             font-size: 14px;
             color: #90caf9;
         }
-        .current-label {
-            font-size: 18px;
+        .gauge-arc {
+            transition: stroke-dasharray 0.3s ease;
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin: 20px auto;
+            background-color: #1a3d5c;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .chart-title {
+            text-align: center;
             color: #66b2ff;
-            margin-bottom: 5px;
+            font-size: 18px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Potentiometer Dashboard</h1>
+        <h1>Brace Dashboard</h1>
         
         <div class="value-display">
-            <div class="current-label">Huidige waarde:</div>
             <h2 id="waarde">Laden...</h2>
         </div>
         
+        <div class="gauge-container">
+            <svg width="300" height="300" viewBox="-150 -150 300 300">
+                <!-- Achtergrond boog -->
+                <path id="gauge-bg" 
+                    d="M-100,0 A100,100 0 1,1 100,0"
+                    fill="none" 
+                    stroke="rgba(102, 178, 255, 0.2)" 
+                    stroke-width="30" 
+                    stroke-linecap="round" />
+                
+                <!-- Waarde boog -->
+                <path id="gauge-arc" 
+                    d="M-100,0 A100,100 0 1,1 100,0"
+                    fill="none" 
+                    stroke="#66b2ff" 
+                    stroke-width="30" 
+                    stroke-linecap="round"
+                    stroke-dasharray="0 314" />
+            </svg>
+            <div class="gauge-value" id="gauge-value">0</div>
+        </div>
+        
+        <!-- Grafiek container toevoegen -->
+        <div class="chart-title">Historische Waarden (500 metingen)</div>
         <div class="chart-container">
-            <canvas id="potentiometerChart"></canvas>
+            <canvas id="historyChart"></canvas>
         </div>
         
         <div class="footer">
-            <p>Realtime potentiometer monitoring systeem</p>
+            <p>Realtime brace monitoring systeem</p>
         </div>
     </div>
 
     <script>
-        // Data arrays voor de grafiek
-        const timestamps = [];
-        const values = [];
-        const maxDataPoints = 20; // Maximaal aantal datapunten om te tonen
+        // Constanten voor de gauge
+        const MAX_VALUE = 180; // Maximale waarde ingesteld op 180
+        const GAUGE_CIRCUMFERENCE = 314; // 2 * π * 100 (radius) * (180/360) (half cirkel)
+        const MAX_DATA_POINTS = 500; // Toon maximaal 500 datapunten
+        
+        // Elements
+        const gaugeArc = document.getElementById('gauge-arc');
+        const gaugeValue = document.getElementById('gauge-value');
+        const waardeElement = document.getElementById('waarde');
         
         // Grafiek initialiseren
-        const ctx = document.getElementById('potentiometerChart').getContext('2d');
-        const chart = new Chart(ctx, {
+        const ctx = document.getElementById('historyChart').getContext('2d');
+        const historyChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: timestamps,
+                labels: [],
                 datasets: [{
-                    label: 'Potentiometer Waarde',
-                    data: values,
+                    label: 'Waarde',
+                    data: [],
                     borderColor: '#66b2ff',
                     backgroundColor: 'rgba(102, 178, 255, 0.1)',
-                    borderWidth: 2,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.3,
+                    pointRadius: 0.5, // Kleinere punten voor betere prestaties
+                    borderWidth: 1.5,
+                    pointHoverRadius: 3,
+                    pointBackgroundColor: '#90caf9'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 0 // Animatie uitzetten voor betere prestaties
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
+                        max: MAX_VALUE,
                         grid: {
                             color: 'rgba(255, 255, 255, 0.1)'
                         },
@@ -115,61 +176,102 @@
                     },
                     x: {
                         grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                            color: 'rgba(255, 255, 255, 0.1)',
+                            display: false // Verberg verticale rasterlijnen voor leesbaarheid
                         },
                         ticks: {
                             color: '#90caf9',
-                            maxRotation: 45,
-                            minRotation: 45
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 10 // Beperk aantal x-as labels
                         }
                     }
                 },
                 plugins: {
                     legend: {
                         labels: {
-                            color: '#ffffff'
+                            color: '#90caf9'
                         }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
                     }
                 },
-                animation: {
-                    duration: 500
+                interaction: {
+                    mode: 'nearest',
+                    intersect: false
+                },
+                elements: {
+                    line: {
+                        tension: 0.3 // Lichte curve voor een vloeiender lijn
+                    }
                 }
             }
         });
         
-        // Functie om waarden op te halen en bij te werken
-        function updateValue() {
-            fetch('/get_value')
+        // Functie om gauge bij te werken
+        function updateGauge(value) {
+            // Waarde binnen bereik (0-MAX_VALUE) houden
+            const normalizedValue = Math.min(Math.max(value, 0), MAX_VALUE);
+            
+            // Bereken de dasharray voor de stroke
+            const fillPercentage = normalizedValue / MAX_VALUE;
+            const dashArray = `${fillPercentage * GAUGE_CIRCUMFERENCE} ${GAUGE_CIRCUMFERENCE}`;
+            
+            // Update de gauge
+            gaugeArc.style.strokeDasharray = dashArray;
+            gaugeValue.textContent = normalizedValue;
+        }
+        
+        // Functie om grafiek bij te werken met nieuwe gegevens
+        function updateChart(data) {
+            // Beperk tot de laatste 500 waarden
+            const recentData = data.slice(-MAX_DATA_POINTS);
+            
+            // Tijdlabels en waarden voorbereiden
+            const labels = recentData.map(item => {
+                const date = new Date(item.timestamp);
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            });
+            const values = recentData.map(item => item.value);
+            
+            // Grafiek updaten
+            historyChart.data.labels = labels;
+            historyChart.data.datasets[0].data = values;
+            historyChart.update('none'); // Gebruik 'none' om animatie over te slaan voor betere prestaties
+        }
+        
+        // Functie om alle opgeslagen waarden op te halen
+        function updateValues() {
+            fetch('/get_values')
                 .then(response => response.json())
                 .then(data => {
-                    // Update de waarde op de pagina
-                    const newValue = data.value;
-                    document.getElementById('waarde').innerText = newValue;
-                    
-                    // Voeg waarde toe aan de grafiek
-                    const now = new Date();
-                    const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
-                                     now.getMinutes().toString().padStart(2, '0') + ':' + 
-                                     now.getSeconds().toString().padStart(2, '0');
-                    
-                    timestamps.push(timeString);
-                    values.push(newValue);
-                    
-                    // Beperk het aantal getoonde datapunten
-                    if (timestamps.length > maxDataPoints) {
-                        timestamps.shift();
-                        values.shift();
+                    if (data.length > 0) {
+                        const lastValue = data[data.length - 1]; // Pak de meest recente waarde
+                        document.getElementById('waarde').innerText = lastValue.value;
+                        updateGauge(lastValue.value);
+                        
+                        // Update de grafiek met alle historische waarden
+                        updateChart(data);
+                    } else {
+                        // Geen data beschikbaar
+                        document.getElementById('waarde').innerText = "Geen data";
+                        updateGauge(0);
                     }
-                    
-                    // Update de grafiek
-                    chart.update();
                 })
-                .catch(error => console.error('Fout bij ophalen waarde:', error));
+                .catch(error => {
+                    console.error('Fout bij ophalen van gegevens:', error);
+                    // Test met willekeurige waarden voor ontwikkeling
+                    const testValue = Math.floor(Math.random() * 180);
+                    document.getElementById('waarde').innerText = testValue;
+                    updateGauge(testValue);
+                });
         }
         
         // Update direct bij laden en daarna elke seconde
-        updateValue();
-        setInterval(updateValue, 1000);
+        updateValues();
+        setInterval(updateValues, 1000);
     </script>
 </body>
 </html>
