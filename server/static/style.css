@@ -1,3 +1,4 @@
+/* Base styles */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #0a1929;
@@ -6,6 +7,82 @@ body {
     padding: 20px;
 }
 
+/* Login styles */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 40px);
+}
+
+.login-box {
+    background-color: #132f4c;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-form {
+    margin-top: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #90caf9;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #66b2ff;
+    border-radius: 4px;
+    background-color: #0a1929;
+    color: #ffffff;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #90caf9;
+    box-shadow: 0 0 0 2px rgba(102, 178, 255, 0.2);
+}
+
+.login-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #66b2ff;
+    color: #0a1929;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.login-button:hover {
+    background-color: #90caf9;
+}
+
+.error-message {
+    background-color: #ff4444;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Layout */
 .container {
     max-width: 800px;
     margin: 0 auto;
@@ -15,15 +92,41 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-h1 {
+/* Typography */
+h1, h2 {
     text-align: center;
     color: #66b2ff;
+    margin-bottom: 24px;
+}
+
+h1 {
     font-size: 32px;
 }
 
+h2 {
+    font-size: 24px;
+    margin-bottom: 16px;
+}
+
+/* Value Display and Gauge */
 .value-display {
     text-align: center;
     margin: 20px 0;
+    position: relative;
+}
+
+.gauge-container {
+    width: 300px;
+    height: 300px;
+    margin: 0 auto;
+    position: relative;
+}
+
+#gauge-bg {
+    fill: none;
+    stroke: #1a3d5c;
+    stroke-width: 30;
+    stroke-linecap: round;
 }
 
 #gauge-arc {
@@ -32,38 +135,286 @@ h1 {
     stroke-width: 30;
     stroke-linecap: round;
     stroke-dasharray: 0 314;
+    transition: stroke-dasharray 0.3s ease;
 }
 
-.gauge-value {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 38px;
+#gauge-value {
+    font-size: 48px;
+    fill: #90caf9;
     font-weight: bold;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+#waarde {
     color: #90caf9;
+    font-size: 24px;
+    margin: 15px 0;
+}
+
+/* Chart Sections */
+.chart-section {
+    background-color: #1a3d5c;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+}
+
+.chart-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.chart-description {
+    color: #90caf9;
+    font-size: 16px;
+    margin-top: -15px;
+    margin-bottom: 20px;
 }
 
 .chart-container {
     width: 100%;
-    height: 300px;
-    margin: 20px auto;
+    height: 400px;
+    margin: 0 auto;
+    position: relative;
     background-color: #1a3d5c;
     border-radius: 8px;
     padding: 15px;
 }
 
-.chart-title {
-    text-align: center;
-    color: #66b2ff;
-    font-size: 18px;
-    margin-bottom: 10px;
+/* Configuration Section */
+.config-section {
+    background-color: #1a3d5c;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
 }
 
+.config-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #132f4c;
+    border-radius: 6px;
+}
+
+.config-item label {
+    margin-bottom: 15px;
+}
+
+.setting-title {
+    display: block;
+    color: #66b2ff;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.setting-description {
+    display: block;
+    color: #90caf9;
+    font-size: 14px;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.config-item input {
+    width: 200px;
+    padding: 8px;
+    border: 1px solid #66b2ff;
+    border-radius: 4px;
+    background-color: #0a1929;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.config-item input:focus {
+    outline: none;
+    border-color: #90caf9;
+    box-shadow: 0 0 0 2px rgba(102, 178, 255, 0.2);
+}
+
+.score-explanation {
+    background-color: #132f4c;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.score-explanation h3 {
+    color: #66b2ff;
+    font-size: 16px;
+    margin: 0 0 15px 0;
+}
+
+.score-explanation ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.score-explanation li {
+    display: flex;
+    align-items: center;
+    color: #90caf9;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.color-dot.red { background-color: #ff4444; }
+.color-dot.yellow { background-color: #ffbb33; }
+.color-dot.green { background-color: #00C851; }
+
+.config-button {
+    background-color: #66b2ff;
+    color: #0a1929;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: block;
+    margin: 20px auto 0;
+    width: 200px;
+}
+
+.config-button:hover {
+    background-color: #90caf9;
+}
+
+/* Week Overview */
+.week-overview {
+    padding: 10px;
+}
+
+.week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.day-card {
+    background-color: #132f4c;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid transparent;
+}
+
+.day-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.day-name {
+    font-size: 14px;
+    color: #90caf9;
+    margin-bottom: 8px;
+}
+
+.day-value {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.day-percentage {
+    font-size: 12px;
+    color: #90caf9;
+    opacity: 0.8;
+}
+
+/* Daily Detail */
+.back-button {
+    background-color: #66b2ff;
+    color: #0a1929;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+.back-button:hover {
+    background-color: #90caf9;
+}
+
+/* Header Section */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.header-section h1 {
+    margin: 0;
+}
+
+.logout-button {
+    background-color: #ff4444;
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+    background-color: #ff6666;
+}
+
+/* Footer */
 .footer {
     text-align: center;
     margin-top: 20px;
+    padding: 15px 0;
     font-size: 14px;
     color: #90caf9;
+    border-top: 1px solid #1a3d5c;
 }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .week-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .config-item {
+        padding: 12px;
+    }
+
+    .config-item input {
+        width: 100%;
+    }
+
+    .config-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .week-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
 
