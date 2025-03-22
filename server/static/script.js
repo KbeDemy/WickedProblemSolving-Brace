@@ -1,11 +1,22 @@
 const MAX_VALUE = 180;
 const GAUGE_CIRCUMFERENCE = 314;
 const MAX_DATA_POINTS = 500;
+const DAYS_OF_WEEK = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
+const MOVEMENT_THRESHOLD = 5; // Fixed movement threshold
+
+let config = {
+    target_daily_movement: 600000
+};
 
 const gaugeArc = document.getElementById('gauge-arc');
 const gaugeValue = document.getElementById('gauge-value');
 const waardeElement = document.getElementById('waarde');
 
+const weekGrid = document.querySelector('.week-grid');
+const dailyDetail = document.getElementById('daily-detail');
+const backButton = document.getElementById('back-to-week');
+
+// Initialize Chart.js
 const ctx = document.getElementById('historyChart').getContext('2d');
 const historyChart = new Chart(ctx, {
     type: 'line',
@@ -16,16 +27,116 @@ const historyChart = new Chart(ctx, {
             data: [],
             borderColor: '#66b2ff',
             backgroundColor: 'rgba(102, 178, 255, 0.1)',
-            fill: true
+            fill: true,
+            tension: 0.4
         }]
     },
     options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
         scales: {
-            y: { beginAtZero: true, max: MAX_VALUE },
-            x: { maxTicksLimit: 10 }
+            y: {
+                beginAtZero: true,
+                max: MAX_VALUE,
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                    color: '#90caf9'
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                    color: '#90caf9',
+                    maxTicksLimit: 12
+                }
+            }
         }
     }
 });
+
+function getColorForValue(value) {
+    // Normalize value based on target daily movement
+    const normalizedValue = (value / config.target_daily_movement) * 100;
+    
+    // Red for low values (0-30%), yellow for medium (30-70%), green for high (70%+)
+    if (normalizedValue < 30) {
+        return '#ff4444'; // Red
+    } else if (normalizedValue < 70) {
+        return '#ffbb33'; // Yellow
+    } else {
+        return '#00C851'; // Green
+    }
+}
+
+function formatMovementScore(score) {
+    if (score >= 1000000) {
+        return `${(score / 1000000).toFixed(1)}M°`;
+    } else if (score >= 1000) {
+        return `${(score / 1000).toFixed(1)}K°`;
+    }
+    return `${Math.round(score)}°`;
+}
+
+function createWeekOverview(weekData) {
+    weekGrid.innerHTML = '';
+    
+    DAYS_OF_WEEK.forEach((day, index) => {
+        const dayData = weekData[index] || { value: 0, count: 0 };
+        const movementScore = dayData.value;
+        const normalizedValue = (movementScore / config.target_daily_movement) * 100;
+        
+        const dayCard = document.createElement('div');
+        dayCard.className = 'day-card';
+        dayCard.style.borderColor = getColorForValue(movementScore);
+        dayCard.innerHTML = `
+            <div class="day-name">${day}</div>
+            <div class="day-value" style="color: ${getColorForValue(movementScore)}">
+                ${formatMovementScore(movementScore)}
+            </div>
+            <div class="day-percentage">
+                ${Math.min(100, Math.round(normalizedValue))}%
+            </div>
+        `;
+        
+        dayCard.addEventListener('click', () => showDailyDetail(index));
+        weekGrid.appendChild(dayCard);
+    });
+}
+
+function showDailyDetail(dayIndex) {
+    document.querySelector('.week-overview').style.display = 'none';
+    dailyDetail.style.display = 'block';
+    
+    fetch(`/get_day_values/${dayIndex}`)
+        .then(response => response.json())
+        .then(data => {
+            updateDailyChart(data);
+        })
+        .catch(error => {
+            console.error('Fout bij ophalen van dagelijkse gegevens:', error);
+        });
+}
+
+function updateDailyChart(data) {
+    const labels = data.map(item => {
+        const date = new Date(item.timestamp);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    });
+    const values = data.map(item => parseFloat(item.value));
+
+    historyChart.data.labels = labels;
+    historyChart.data.datasets[0].data = values;
+    historyChart.update();
+}
 
 function updateGauge(value) {
     const normalizedValue = Math.min(Math.max(value, 0), MAX_VALUE);
@@ -33,7 +144,7 @@ function updateGauge(value) {
     const dashArray = `${fillPercentage * GAUGE_CIRCUMFERENCE} ${GAUGE_CIRCUMFERENCE}`;
 
     gaugeArc.style.strokeDasharray = dashArray;
-    gaugeValue.textContent = normalizedValue;
+    gaugeValue.textContent = `${Math.round(normalizedValue)}°`;
 }
 
 function updateChart(data) {
@@ -46,28 +157,71 @@ function updateChart(data) {
     historyChart.update('none');
 }
 
+function loadConfig() {
+    // Load saved configuration from localStorage or use defaults
+    const savedDailyGoal = localStorage.getItem('dailyGoal');
+    document.getElementById('dailyGoal').value = savedDailyGoal || 1000;
+    
+    // Update global variables
+    config.target_daily_movement = parseInt(document.getElementById('dailyGoal').value);
+}
+
+function saveConfig() {
+    // Get values from inputs
+    const newDailyGoal = parseInt(document.getElementById('dailyGoal').value);
+    
+    // Validate input
+    if (isNaN(newDailyGoal) || newDailyGoal < 0) {
+        alert('Vul een geldig dagelijks doel in (moet een positief getal zijn)');
+        return;
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('dailyGoal', newDailyGoal);
+    
+    // Update global variables
+    config.target_daily_movement = newDailyGoal;
+    
+    // Show confirmation
+    alert('Instellingen opgeslagen!');
+}
+
 function updateValues() {
-    fetch('/get_values')
+    fetch('/get_current_value')
         .then(response => response.json())
         .then(data => {
-            if (data.length > 0) {
-                const lastValue = data[data.length - 1];
-                waardeElement.innerText = lastValue.value;
-                updateGauge(lastValue.value);
-                updateChart(data);
-            } else {
-                waardeElement.innerText = "Geen data";
-                updateGauge(0);
+            if (data.value !== undefined) {
+                updateGauge(data.value);
             }
         })
         .catch(error => {
-            console.error('Fout bij ophalen van gegevens:', error);
-            const testValue = Math.floor(Math.random() * 180);
-            waardeElement.innerText = testValue;
-            updateGauge(testValue);
+            console.error('Fout bij ophalen van huidige waarde:', error);
+            waardeElement.textContent = "Verbinding verbroken";
+            updateGauge(0);
+        });
+
+    fetch('/get_week_overview')
+        .then(response => response.json())
+        .then(data => {
+            createWeekOverview(data);
+        })
+        .catch(error => {
+            console.error('Fout bij ophalen van weekoverzicht:', error);
         });
 }
 
-updateValues();
-setInterval(updateValues, 1000);
+// Event Listeners
+backButton.addEventListener('click', () => {
+    dailyDetail.style.display = 'none';
+    document.querySelector('.week-overview').style.display = 'block';
+});
+
+// Initial setup
+document.addEventListener('DOMContentLoaded', function() {
+    loadConfig();
+    updateValues();
+    setInterval(updateValues, 1000);
+});
+
+
 
