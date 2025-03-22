@@ -1,58 +1,167 @@
-from flask import Flask, request, jsonify, render_template import json import os from datetime
-import datetime # Import voor timestamp
+from flask import Flask, render_template, jsonify, request, redirect, url_for, session
+from datetime import datetime, timedelta
+import json
+import os
+import sqlite3
+from functools import wraps
 
-app = Flask(__name__) json_file = "sensor_data.json" MAX_DATA_POINTS = 1000 # Optioneel:
-Beperk het aantal opgeslagen waarden
+app = Flask(__name__)
+app.secret_key = 'your-secret-key-here'  # Change this to a secure secret key
 
-# Functie om JSON-bestand in te laden
-def load_sensor_data():
-    if os.path.exists(json_file):
-        try:
-            with open(json_file, "r") as f:
-                data = json.load(f)
-                if isinstance(data, list):
-                    return data  # Geldige lijst
-        except json.JSONDecodeError:
-            pass  # Bestand is corrupt of leeg
-    return []  # Retourneer een lege lijst als er iets misgaat
+# Database initialization
+def init_db():
+    conn = sqlite3.connect('brace_data.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS values
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  value REAL NOT NULL,
+                  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    conn.commit()
+    conn.close()
 
-# Functie om JSON-bestand op te slaan
-def save_sensor_data(data):
-    try:
-        with open(json_file, "w") as f:
-            json.dump(data, f, indent=4)
-    except IOError:
-        print("Fout bij opslaan van sensorwaarden!")
+init_db()
 
-sensor_data = load_sensor_data()  # Laad bestaande data bij opstarten
+# Login required decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            if request.method == 'POST' and request.path == '/update':
+                return jsonify({'error': 'Unauthorized'}), 401
+            if request.path.startswith('/get_'):
+                return jsonify({'error': 'Unauthorized'}), 401
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
-def home():
+@login_required
+def index():
     return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if username == 'admin' and password == 'admin':
+            session['logged_in'] = True
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', error='Ongeldige inloggegevens')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
 
 @app.route('/update', methods=['POST'])
 def update_value():
-    global sensor_data
-    new_value = request.json.get('value', 0)
+    if not request.is_json:
+        return jsonify({'error': 'Content-Type must be application/json'}), 400
+        
+    try:
+        data = request.get_json()
+        new_value = float(data.get('value'))
+        timestamp = data.get('timestamp', datetime.now().isoformat())
+        
+        conn = sqlite3.connect('brace_data.db')
+        c = conn.cursor()
+        c.execute('INSERT INTO values (value, timestamp) VALUES (?, ?)',
+                 (new_value, timestamp))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'value': new_value,
+            'timestamp': timestamp
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
-    # Genereer timestamp
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    # Voeg nieuwe waarde toe
-    sensor_data.append({"value": new_value, "timestamp": timestamp})
-
-    # Beperk de grootte van de lijst
-    if len(sensor_data) > MAX_DATA_POINTS:
-        sensor_data.pop(0)  # Verwijder oudste waarde
-
-    # Sla op in JSON-bestand
-    save_sensor_data(sensor_data)
-
-    return jsonify({"message": "Waarde bijgewerkt", "values": sensor_data})
+@app.route('/get_current_value')
+@login_required
+def get_current_value():
+    conn = sqlite3.connect('brace_data.db')
+    c = conn.cursor()
+    c.execute('SELECT value FROM values ORDER BY timestamp DESC LIMIT 1')
+    result = c.fetchone()
+    conn.close()
+    
+    if result:
+        return jsonify({'value': result[0]})
+    return jsonify({'value': 0})
 
 @app.route('/get_values')
+@login_required
 def get_values():
-    return jsonify(sensor_data)  # Stuur volledige lijst naar client
+    conn = sqlite3.connect('brace_data.db')
+    c = conn.cursor()
+    c.execute('SELECT value, timestamp FROM values ORDER BY timestamp DESC LIMIT 500')
+    values = [{'value': row[0], 'timestamp': row[1]} for row in c.fetchall()]
+    conn.close()
+    return jsonify(values)
+
+@app.route('/get_week_overview')
+@login_required
+def get_week_overview():
+    conn = sqlite3.connect('brace_data.db')
+    c = conn.cursor()
+    
+    # Get the start of the current week (Monday)
+    today = datetime.now()
+    start_of_week = today - timedelta(days=today.weekday())
+    
+    week_data = []
+    for i in range(7):
+        day_start = start_of_week + timedelta(days=i)
+        day_end = day_start + timedelta(days=1)
+        
+        c.execute('''
+            SELECT SUM(value) as total_value, COUNT(*) as count
+            FROM values
+            WHERE timestamp >= ? AND timestamp < ?
+        ''', (day_start.isoformat(), day_end.isoformat()))
+        
+        result = c.fetchone()
+        week_data.append({
+            'value': result[0] if result[0] is not None else 0,
+            'count': result[1] if result[1] is not None else 0
+        })
+    
+    conn.close()
+    return jsonify(week_data)
+
+@app.route('/get_day_values/<int:day_index>')
+@login_required
+def get_day_values(day_index):
+    if not 0 <= day_index <= 6:
+        return jsonify({'error': 'Invalid day index'}), 400
+        
+    conn = sqlite3.connect('brace_data.db')
+    c = conn.cursor()
+    
+    # Get the start of the current week (Monday)
+    today = datetime.now()
+    start_of_week = today - timedelta(days=today.weekday())
+    day_start = start_of_week + timedelta(days=day_index)
+    day_end = day_start + timedelta(days=1)
+    
+    c.execute('''
+        SELECT value, timestamp
+        FROM values
+        WHERE timestamp >= ? AND timestamp < ?
+        ORDER BY timestamp ASC
+    ''', (day_start.isoformat(), day_end.isoformat()))
+    
+    values = [{'value': row[0], 'timestamp': row[1]} for row in c.fetchall()]
+    conn.close()
+    return jsonify(values)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
+
