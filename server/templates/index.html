@@ -4,39 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brace Dashboard</title>
-    <!-- Chart.js toevoegen -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <!-- Link naar CSS-bestand -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Brace Dashboard</h1>
+        <div class="header-section">
+            <h1>Brace Dashboard</h1>
+            <a href="/logout" class="logout-button">Uitloggen</a>
+        </div>
 
         <div class="value-display">
-            <h2 id="waarde">Laden...</h2>
-        </div>
-
-        <div class="gauge-container">
-            <svg width="300" height="300" viewBox="-150 -150 300 300">
-                <path id="gauge-bg" d="M-100,0 A100,100 0 1,1 100,0" />
-                <path id="gauge-arc" d="M-100,0 A100,100 0 1,1 100,0" />
+            <svg class="gauge-container" viewBox="0 0 100 100">
+                <circle id="gauge-bg" cx="50" cy="50" r="45"/>
+                <circle id="gauge-arc" cx="50" cy="50" r="45"/>
+                <text id="gauge-value" x="50" y="50" text-anchor="middle" dominant-baseline="middle">0°</text>
             </svg>
-            <div class="gauge-value" id="gauge-value">0</div>
+            <div id="waarde">Huidige hoek</div>
         </div>
 
-        <div class="chart-title">Historische Waarden (500 metingen)</div>
-        <div class="chart-container">
-            <canvas id="historyChart"></canvas>
+        <div class="chart-section">
+            <div class="chart-header">
+                <h2>Bewegingsgeschiedenis</h2>
+                <div class="chart-description">De laatste uren van beweging</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-item">
+                <label>
+                    <span class="setting-title">Dagelijks bewegingsdoel</span>
+                    <span class="setting-description">Het aantal graden dat je dagelijks wilt bewegen. Dit doel wordt gebruikt om je voortgang te beoordelen en wordt weergegeven in de kleurcodering van de grafiek.</span>
+                </label>
+                <input type="number" id="dailyGoal" min="0" value="1000">
+            </div>
+
+            <div class="score-explanation">
+                <h3>Kleurcodering uitleg</h3>
+                <ul>
+                    <li><span class="color-dot red"></span>Rood: Minder dan 50% van je dagelijkse doel behaald</li>
+                    <li><span class="color-dot yellow"></span>Geel: Tussen 50% en 90% van je dagelijkse doel behaald</li>
+                    <li><span class="color-dot green"></span>Groen: 90% of meer van je dagelijkse doel behaald</li>
+                </ul>
+            </div>
+
+            <button class="config-button" onclick="saveConfig()">Instellingen opslaan</button>
+        </div>
+
+        <div class="week-overview">
+            <h2>Weekoverzicht</h2>
+            <div class="week-grid"></div>
+        </div>
+
+        <div id="daily-detail" style="display: none;">
+            <h2>Dagelijks detail</h2>
+            <div class="chart-container">
+                <canvas id="dailyChart"></canvas>
+            </div>
+            <button id="back-to-week" class="back-button">Terug naar weekoverzicht</button>
         </div>
 
         <div class="footer">
-            <p>Realtime brace monitoring systeem</p>
+            <p>Laatste update: <span id="last-update"></span></p>
         </div>
     </div>
 
-    <!-- Link naar JavaScript-bestand -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
+
+
+
+
 
