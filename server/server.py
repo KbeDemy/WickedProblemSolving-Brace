@@ -12,14 +12,16 @@ app.secret_key = 'your-secret-key-here'  # Change this to a secure secret key
 def init_db():
     conn = sqlite3.connect('brace_data.db')
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS values
+    c.execute('''CREATE TABLE IF NOT EXISTS sensor_values
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
                   value REAL NOT NULL,
                   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
     conn.commit()
     conn.close()
 
-init_db()
+# Initialize database when running as main module
+if __name__ == '__main__':
+    init_db()
 
 # Login required decorator
 def login_required(f):
@@ -66,11 +68,13 @@ def update_value():
     try:
         data = request.get_json()
         new_value = float(data.get('value'))
-        timestamp = data.get('timestamp', datetime.now().isoformat())
+        
+        # Gebruik alleen de huidige tijd, geen externe timestamp
+        timestamp = datetime.now().isoformat()
         
         conn = sqlite3.connect('brace_data.db')
         c = conn.cursor()
-        c.execute('INSERT INTO values (value, timestamp) VALUES (?, ?)',
+        c.execute('INSERT INTO sensor_values (value, timestamp) VALUES (?, ?)',
                  (new_value, timestamp))
         conn.commit()
         conn.close()
@@ -88,7 +92,7 @@ def update_value():
 def get_current_value():
     conn = sqlite3.connect('brace_data.db')
     c = conn.cursor()
-    c.execute('SELECT value FROM values ORDER BY timestamp DESC LIMIT 1')
+    c.execute('SELECT value FROM sensor_values ORDER BY timestamp DESC LIMIT 1')
     result = c.fetchone()
     conn.close()
     
@@ -101,7 +105,7 @@ def get_current_value():
 def get_values():
     conn = sqlite3.connect('brace_data.db')
     c = conn.cursor()
-    c.execute('SELECT value, timestamp FROM values ORDER BY timestamp DESC LIMIT 500')
+    c.execute('SELECT value, timestamp FROM sensor_values ORDER BY timestamp DESC LIMIT 500')
     values = [{'value': row[0], 'timestamp': row[1]} for row in c.fetchall()]
     conn.close()
     return jsonify(values)
@@ -123,7 +127,7 @@ def get_week_overview():
         
         c.execute('''
             SELECT SUM(value) as total_value, COUNT(*) as count
-            FROM values
+            FROM sensor_values
             WHERE timestamp >= ? AND timestamp < ?
         ''', (day_start.isoformat(), day_end.isoformat()))
         
@@ -153,7 +157,7 @@ def get_day_values(day_index):
     
     c.execute('''
         SELECT value, timestamp
-        FROM values
+        FROM sensor_values
         WHERE timestamp >= ? AND timestamp < ?
         ORDER BY timestamp ASC
     ''', (day_start.isoformat(), day_end.isoformat()))
@@ -163,5 +167,4 @@ def get_day_values(day_index):
     return jsonify(values)
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run(host='0.0.0.0', port=5000, debug=True)
