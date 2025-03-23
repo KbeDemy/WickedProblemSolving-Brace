@@ -120,26 +120,27 @@ h2 {
     height: 300px;
     margin: 0 auto;
     position: relative;
+    viewBox: "-45 -45 90 45";
 }
 
 #gauge-bg {
     fill: none;
     stroke: #1a3d5c;
-    stroke-width: 30;
+    stroke-width: 8;
     stroke-linecap: round;
 }
 
 #gauge-arc {
     fill: none;
     stroke: #66b2ff;
-    stroke-width: 30;
+    stroke-width: 8;
     stroke-linecap: round;
     stroke-dasharray: 0 314;
     transition: stroke-dasharray 0.3s ease;
 }
 
 #gauge-value {
-    font-size: 48px;
+    font-size: 24px;
     fill: #90caf9;
     font-weight: bold;
     font-family: 'Segoe UI', sans-serif;
@@ -147,8 +148,8 @@ h2 {
 
 #waarde {
     color: #90caf9;
-    font-size: 24px;
-    margin: 15px 0;
+    font-size: 16px;
+    margin: 10px 0;
 }
 
 /* Chart Sections */
@@ -416,5 +417,81 @@ h2 {
     }
 }
 
+/* Tooltip styles */
+.tooltip-container {
+    position: relative;
+    cursor: help;
+}
+
+.tooltip {
+    display: none;
+    position: absolute;
+    background-color: #1a3d5c;
+    color: #90caf9;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 250px;
+    top: 100%;
+    left: 0;
+    margin-top: 5px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip-container:hover .tooltip {
+    display: block;
+}
+
+/* Color legend styles */
+.color-legend {
+    background-color: #132f4c;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.color-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    color: #90caf9;
+    font-size: 14px;
+}
+
+.color-item:last-child {
+    margin-bottom: 0;
+}
+
+.color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.color-dot.red { background-color: #ff4444; }
+.color-dot.yellow { background-color: #ffbb33; }
+.color-dot.green { background-color: #00C851; }
+
+/* Exercise button */
+.exercise-button {
+    background-color: #00C851;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: block;
+    margin: 10px auto 0;
+    width: 200px;
+}
+
+.exercise-button:hover {
+    background-color: #00E25B;
+}
 
 
