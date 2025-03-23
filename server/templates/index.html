@@ -15,10 +15,23 @@
         </div>
 
         <div class="value-display">
-            <svg class="gauge-container" viewBox="0 0 100 100">
-                <circle id="gauge-bg" cx="50" cy="50" r="45"/>
-                <circle id="gauge-arc" cx="50" cy="50" r="45"/>
-                <text id="gauge-value" x="50" y="50" text-anchor="middle" dominant-baseline="middle">0°</text>
+            <svg class="gauge-container" viewBox="-50 -50 100 50">
+                <path id="gauge-bg" 
+                      d="M -45,0 A 45,45 0 0,1 45,0"
+                      fill="none" 
+                      stroke="#1a3d5c" 
+                      stroke-width="10"/>
+                <path id="gauge-arc" 
+                      d="M -45,0 A 45,45 0 0,1 45,0"
+                      fill="none" 
+                      stroke="#66b2ff" 
+                      stroke-width="10"/>
+                <text id="gauge-value" 
+                      x="0" 
+                      y="-10" 
+                      text-anchor="middle" 
+                      fill="#90caf9" 
+                      font-size="20">0°</text>
             </svg>
             <div id="waarde">Huidige hoek</div>
         </div>
@@ -35,23 +48,30 @@
 
         <div class="config-section">
             <div class="config-item">
-                <label>
+                <label class="tooltip-container">
                     <span class="setting-title">Dagelijks bewegingsdoel</span>
-                    <span class="setting-description">Het aantal graden dat je dagelijks wilt bewegen. Dit doel wordt gebruikt om je voortgang te beoordelen en wordt weergegeven in de kleurcodering van de grafiek.</span>
+                    <span class="tooltip">Het aantal graden dat je dagelijks wilt bewegen. Dit doel wordt gebruikt om je voortgang te beoordelen en wordt weergegeven in de kleurcodering van de grafiek.</span>
                 </label>
                 <input type="number" id="dailyGoal" min="0" value="1000">
             </div>
 
-            <div class="score-explanation">
-                <h3>Kleurcodering uitleg</h3>
-                <ul>
-                    <li><span class="color-dot red"></span>Rood: Minder dan 50% van je dagelijkse doel behaald</li>
-                    <li><span class="color-dot yellow"></span>Geel: Tussen 50% en 90% van je dagelijkse doel behaald</li>
-                    <li><span class="color-dot green"></span>Groen: 90% of meer van je dagelijkse doel behaald</li>
-                </ul>
+            <div class="color-legend">
+                <div class="color-item">
+                    <span class="color-dot red"></span>
+                    <span>Minder dan 50% van je doel</span>
+                </div>
+                <div class="color-item">
+                    <span class="color-dot yellow"></span>
+                    <span>Tussen 50% en 90% van je doel</span>
+                </div>
+                <div class="color-item">
+                    <span class="color-dot green"></span>
+                    <span>90% of meer van je doel</span>
+                </div>
             </div>
 
             <button class="config-button" onclick="saveConfig()">Instellingen opslaan</button>
+            <button class="exercise-button">Doe je oefeningen!</button>
         </div>
 
         <div class="week-overview">
@@ -75,8 +95,6 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
-
-
 
 
 
