@@ -1,5 +1,5 @@
 const MAX_VALUE = 180;
-const GAUGE_CIRCUMFERENCE = 314;
+const GAUGE_CIRCUMFERENCE = 157;
 const MAX_DATA_POINTS = 500;
 const DAYS_OF_WEEK = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
 const MOVEMENT_THRESHOLD = 5; // Fixed movement threshold
@@ -113,29 +113,61 @@ function createWeekOverview(weekData) {
 }
 
 function showDailyDetail(dayIndex) {
-    document.querySelector('.week-overview').style.display = 'none';
-    dailyDetail.style.display = 'block';
+    const weekOverview = document.querySelector('.week-overview');
+    const dailyDetail = document.getElementById('daily-detail');
     
-    fetch(`/get_day_values/${dayIndex}`)
-        .then(response => response.json())
-        .then(data => {
-            updateDailyChart(data);
-        })
-        .catch(error => {
-            console.error('Fout bij ophalen van dagelijkse gegevens:', error);
+    if (weekOverview && dailyDetail) {
+        weekOverview.style.display = 'none';
+        dailyDetail.style.display = 'block';
+        
+        // Zorg ervoor dat de chart correct wordt geïnitialiseerd
+        const ctx = document.getElementById('dailyChart').getContext('2d');
+        if (window.dailyChart) {
+            window.dailyChart.destroy(); // Verwijder bestaande chart
+        }
+        
+        // Maak nieuwe chart
+        window.dailyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Hoek',
+                    data: [],
+                    borderColor: '#66b2ff',
+                    backgroundColor: 'rgba(102, 178, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: MAX_VALUE
+                    }
+                }
+            }
         });
-}
+        
+        // Haal data op en update chart
+        fetch(`/get_day_values/${dayIndex}`)
+            .then(response => response.json())
+            .then(data => {
+                const labels = data.map(item => {
+                    const date = new Date(item.timestamp);
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                });
+                const values = data.map(item => item.value);
 
-function updateDailyChart(data) {
-    const labels = data.map(item => {
-        const date = new Date(item.timestamp);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    });
-    const values = data.map(item => parseFloat(item.value));
-
-    historyChart.data.labels = labels;
-    historyChart.data.datasets[0].data = values;
-    historyChart.update();
+                window.dailyChart.data.labels = labels;
+                window.dailyChart.data.datasets[0].data = values;
+                window.dailyChart.update();
+            })
+            .catch(error => console.error('Fout bij ophalen dagelijkse data:', error));
+    }
 }
 
 function updateGauge(value) {
@@ -148,8 +180,11 @@ function updateGauge(value) {
 }
 
 function updateChart(data) {
-    const recentData = data.slice(-MAX_DATA_POINTS);
-    const labels = recentData.map(item => new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    const recentData = data.slice(-500);
+    const labels = recentData.map(item => {
+        const date = new Date(item.timestamp);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    });
     const values = recentData.map(item => item.value);
 
     historyChart.data.labels = labels;
@@ -200,6 +235,15 @@ function updateValues() {
             updateGauge(0);
         });
 
+    fetch('/get_values')
+        .then(response => response.json())
+        .then(data => {
+            updateChart(data);
+        })
+        .catch(error => {
+            console.error('Fout bij ophalen van historische waardes:', error);
+        });
+
     fetch('/get_week_overview')
         .then(response => response.json())
         .then(data => {
@@ -220,8 +264,7 @@ backButton.addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', function() {
     loadConfig();
     updateValues();
-    setInterval(updateValues, 1000);
+    setInterval(updateValues, 500);
 });
-
 
 
