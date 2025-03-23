@@ -1,12 +1,12 @@
 # WickedProblemSolving-Brace
 Dit systeem helpt patiënten na een orthopedische ingreep door hun bewegingen te meten en te tonen. 
-De grafieken zullen artsen en patiënten zien hoe goed het herstel verloopt.
+Door grafieken zullen artsen en patiënten zien hoe goed het herstel verloopt.
 
 # Functies
 
 - Leest de potentiometerwaarde uit met een ESP32
 - Stuurt de data via WiFi naar een Flask-server op de Raspberry Pi
-- Website die automatisch de sensoren weergeeft in real-time
+- Website die automatisch de sensoren weergeeft in "real-time"
 
 # Installatie en Gebruik
 
@@ -22,4 +22,6 @@ De grafieken zullen artsen en patiënten zien hoe goed het herstel verloopt.
 - HTML, CSS, JavaScript voor de webinterface
 
 # Toekomstige verbeteringen
-- ...
+- de grafiekjes voor het de wekelijkse opvolging
+- een grafiek maken voor alle dat van de gebruiker over heel de periode
+- de "doe je oefeningen knop dingen laten doen"
