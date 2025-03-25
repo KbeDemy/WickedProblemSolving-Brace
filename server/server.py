@@ -116,7 +116,6 @@ def get_week_overview():
     conn = sqlite3.connect('brace_data.db')
     c = conn.cursor()
     
-    # Get the start of the current week (Monday)
     today = datetime.now()
     start_of_week = today - timedelta(days=today.weekday())
     
@@ -125,16 +124,28 @@ def get_week_overview():
         day_start = start_of_week + timedelta(days=i)
         day_end = day_start + timedelta(days=1)
         
+        # Get all values for the day in chronological order
         c.execute('''
-            SELECT SUM(value) as total_value, COUNT(*) as count
-            FROM sensor_values
+            SELECT value, timestamp 
+            FROM sensor_values 
             WHERE timestamp >= ? AND timestamp < ?
+            ORDER BY timestamp ASC
         ''', (day_start.isoformat(), day_end.isoformat()))
         
-        result = c.fetchone()
+        values = c.fetchall()
+        total_movement = 0
+        
+        # Calculate total movement by looking at changes between consecutive values
+        for j in range(1, len(values)):
+            current_value = values[j][0]
+            previous_value = values[j-1][0]
+            # Calculate absolute difference between consecutive readings
+            movement = abs(current_value - previous_value)
+            total_movement += movement
+        
         week_data.append({
-            'value': result[0] if result[0] is not None else 0,
-            'count': result[1] if result[1] is not None else 0
+            'value': total_movement,
+            'count': len(values)
         })
     
     conn.close()
@@ -165,6 +176,11 @@ def get_day_values(day_index):
     values = [{'value': row[0], 'timestamp': row[1]} for row in c.fetchall()]
     conn.close()
     return jsonify(values)
+
+@app.route('/exercises')
+@login_required
+def exercises():
+    return render_template('exercises.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

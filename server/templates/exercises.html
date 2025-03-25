@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brace Oefeningen</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .exercises-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .exercise-card {
+            background: #1a3d5c;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: #90caf9;
+        }
+
+        .exercise-card h3 {
+            margin: 0 0 15px 0;
+            color: #66b2ff;
+        }
+
+        .exercise-steps {
+            margin-left: 20px;
+        }
+
+        .exercise-steps li {
+            margin-bottom: 10px;
+        }
+
+        .exercise-timer {
+            font-size: 24px;
+            text-align: center;
+            margin: 20px 0;
+            color: #66b2ff;
+        }
+
+        .exercise-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .exercise-button {
+            background: #66b2ff;
+            color: #1a3d5c;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .exercise-button:hover {
+            background: #90caf9;
+        }
+
+        .back-button {
+            background: #1a3d5c;
+            color: #90caf9;
+            border: 2px solid #66b2ff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background: #66b2ff;
+            color: #1a3d5c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h1>Brace Oefeningen</h1>
+            <a href="/" class="back-button">Terug naar Dashboard</a>
+        </div>
+
+        <div class="exercises-container">
+            <div class="exercise-card">
+                <h3>Oefening 1: Flexie</h3>
+                <div class="exercise-timer" id="timer1">00:00</div>
+                <div class="exercise-steps">
+                    <ol>
+                        <li>beweeg je knie 15 keer</li>
+                       
+                    </ol>
+                </div>
+                <div class="exercise-controls">
+                    <button class="exercise-button" onclick="startTimer(1)">Start</button>
+                    <button class="exercise-button" onclick="pauseTimer(1)">Pauze</button>
+                    <button class="exercise-button" onclick="resetTimer(1)">Reset</button>
+                </div>
+            </div>
+
+            <div class="exercise-card">
+                <h3>Oefening 2: Extensie</h3>
+                <div class="exercise-timer" id="timer2">00:00</div>
+                <div class="exercise-steps">
+                    <ol>
+                        <li>houd je knie hoog voor 15seconden</li>
+                    </ol>
+                </div>
+                <div class="exercise-controls">
+                    <button class="exercise-button" onclick="startTimer(2)">Start</button>
+                    <button class="exercise-button" onclick="pauseTimer(2)">Pauze</button>
+                    <button class="exercise-button" onclick="resetTimer(2)">Reset</button>
+                </div>
+            </div>
+
+            <div class="exercise-card">
+                <h3>Oefening 3: Rotatie</h3>
+                <div class="exercise-timer" id="timer3">00:00</div>
+                <div class="exercise-steps">
+                    <ol>
+                        <li>wandel 100 meter</li>
+                    </ol>
+                </div>
+                <div class="exercise-controls">
+                    <button class="exercise-button" onclick="startTimer(3)">Start</button>
+                    <button class="exercise-button" onclick="pauseTimer(3)">Pauze</button>
+                    <button class="exercise-button" onclick="resetTimer(3)">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timers = {
+            1: { time: 0, interval: null, isRunning: false },
+            2: { time: 0, interval: null, isRunning: false },
+            3: { time: 0, interval: null, isRunning: false }
+        };
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer(exerciseNumber) {
+            if (!timers[exerciseNumber].isRunning) {
+                timers[exerciseNumber].isRunning = true;
+                timers[exerciseNumber].interval = setInterval(() => {
+                    timers[exerciseNumber].time++;
+                    document.getElementById(`timer${exerciseNumber}`).textContent = formatTime(timers[exerciseNumber].time);
+                }, 1000);
+            }
+        }
+
+        function pauseTimer(exerciseNumber) {
+            if (timers[exerciseNumber].isRunning) {
+                timers[exerciseNumber].isRunning = false;
+                clearInterval(timers[exerciseNumber].interval);
+            }
+        }
+
+        function resetTimer(exerciseNumber) {
+            pauseTimer(exerciseNumber);
+            timers[exerciseNumber].time = 0;
+            document.getElementById(`timer${exerciseNumber}`).textContent = formatTime(0);
+        }
+    </script>
+</body>
+</html> 

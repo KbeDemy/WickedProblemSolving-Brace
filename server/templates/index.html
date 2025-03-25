@@ -14,81 +14,81 @@
             <a href="/logout" class="logout-button">Uitloggen</a>
         </div>
 
-        <div class="value-display">
-            <svg class="gauge-container" viewBox="-50 -50 100 50">
-                <path id="gauge-bg" 
-                      d="M -45,0 A 45,45 0 0,1 45,0"
-                      fill="none" 
-                      stroke="#1a3d5c" 
-                      stroke-width="10"/>
-                <path id="gauge-arc" 
-                      d="M -45,0 A 45,45 0 0,1 45,0"
-                      fill="none" 
-                      stroke="#66b2ff" 
-                      stroke-width="10"/>
-                <text id="gauge-value" 
-                      x="0" 
-                      y="-10" 
-                      text-anchor="middle" 
-                      fill="#90caf9" 
-                      font-size="20">0°</text>
-            </svg>
-            <div id="waarde">Huidige hoek</div>
-        </div>
-
-        <div class="chart-section">
-            <div class="chart-header">
-                <h2>Bewegingsgeschiedenis</h2>
-                <div class="chart-description">De laatste uren van beweging</div>
-            </div>
-            <div class="chart-container">
-                <canvas id="historyChart"></canvas>
-            </div>
-        </div>
-
-        <div class="config-section">
-            <div class="config-item">
-                <label class="tooltip-container">
-                    <span class="setting-title">Dagelijks bewegingsdoel</span>
-                    <span class="tooltip">Het aantal graden dat je dagelijks wilt bewegen. Dit doel wordt gebruikt om je voortgang te beoordelen en wordt weergegeven in de kleurcodering van de grafiek.</span>
-                </label>
-                <input type="number" id="dailyGoal" min="0" value="1000">
-            </div>
-
-            <div class="color-legend">
-                <div class="color-item">
-                    <span class="color-dot red"></span>
-                    <span>Minder dan 50% van je doel</span>
+        <div class="dashboard-layout">
+            <!-- Linker kolom -->
+            <div class="left-column">
+                <div class="week-overview">
+                    <h2>Weekoverzicht</h2>
+                    <div class="week-grid"></div>
                 </div>
-                <div class="color-item">
-                    <span class="color-dot yellow"></span>
-                    <span>Tussen 50% en 90% van je doel</span>
-                </div>
-                <div class="color-item">
-                    <span class="color-dot green"></span>
-                    <span>90% of meer van je doel</span>
+
+                <div class="config-section">
+                    <h2>Instellingen</h2>
+                    <div class="config-item">
+                        <label class="tooltip-container">
+                            <span class="setting-title">Dagelijks bewegingsdoel</span>
+                            <span class="tooltip">Het aantal graden dat je dagelijks wilt bewegen.</span>
+                        </label>
+                        <input type="number" id="dailyGoal" min="0" value="1000">
+                    </div>
+
+                    <div class="legend-section">
+                        <h3>Voortgang indicatie</h3>
+                        <div class="color-legend">
+                            <div class="color-item">
+                                <span class="color-dot red"></span>
+                                <span>Minder dan 50% van je doel</span>
+                            </div>
+                            <div class="color-item">
+                                <span class="color-dot yellow"></span>
+                                <span>Tussen 50% en 90% van je doel</span>
+                            </div>
+                            <div class="color-item">
+                                <span class="color-dot green"></span>
+                                <span>90% of meer van je doel</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="config-button" onclick="saveConfig()">Instellingen opslaan</button>
+                    <button class="exercise-button" onclick="window.location.href='/exercises'">Doe je oefeningen!</button>
                 </div>
             </div>
 
-            <button class="config-button" onclick="saveConfig()">Instellingen opslaan</button>
-            <button class="exercise-button">Doe je oefeningen!</button>
-        </div>
+            <!-- Rechter kolom -->
+            <div class="main-content">
+                <div class="value-display">
+                    <svg class="gauge-container" viewBox="-50 -50 100 50">
+                        <path id="gauge-bg" 
+                              d="M -45,0 A 45,45 0 0,1 45,0"
+                              fill="none" 
+                              stroke="#1a3d5c" 
+                              stroke-width="10"/>
+                        <path id="gauge-arc" 
+                              d="M -45,0 A 45,45 0 0,1 45,0"
+                              fill="none" 
+                              stroke="#66b2ff" 
+                              stroke-width="10"/>
+                        <text id="gauge-value" 
+                              x="0" 
+                              y="-10" 
+                              text-anchor="middle" 
+                              fill="#90caf9" 
+                              font-size="20">0°</text>
+                    </svg>
+                    <div id="waarde">Huidige hoek</div>
+                </div>
 
-        <div class="week-overview">
-            <h2>Weekoverzicht</h2>
-            <div class="week-grid"></div>
-        </div>
-
-        <div id="daily-detail" style="display: none;">
-            <h2>Dagelijks detail</h2>
-            <div class="chart-container">
-                <canvas id="dailyChart"></canvas>
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <h2>Bewegingsgeschiedenis</h2>
+                        <div class="chart-description">De laatste uren van beweging</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="historyChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <button id="back-to-week" class="back-button">Terug naar weekoverzicht</button>
-        </div>
-
-        <div class="footer">
-            <p>Laatste update: <span id="last-update"></span></p>
         </div>
     </div>
 
