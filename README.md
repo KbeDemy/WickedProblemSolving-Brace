@@ -14,6 +14,7 @@ Door grafieken zullen artsen en patiënten zien hoe goed het herstel verloopt.
 - Flask-server op Raspberry Pi
 - Start de Flask-server om de binnenkomende data te verwerken en op de website te tonen.
 - Website openen
+  
 
 # Technologieën
 
@@ -25,3 +26,7 @@ Door grafieken zullen artsen en patiënten zien hoe goed het herstel verloopt.
 - de grafiekjes voor het de wekelijkse opvolging
 - een grafiek maken voor alle dat van de gebruiker over heel de periode
 - de "doe je oefeningen knop dingen laten doen"
+- vochtsensor
+- druksensor
+- emg
+- temperatruursensor
