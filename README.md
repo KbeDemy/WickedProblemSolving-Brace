@@ -4,7 +4,7 @@ Door grafieken zullen artsen en patiënten zien hoe goed het herstel verloopt.
 
 # Functies
 
-- Leest de potentiometerwaarde uit met een ESP32
+- Leest de sensorwaarden uit met een ESP32 
 - Stuurt de data via WiFi naar een Flask-server op de Raspberry Pi
 - Website die automatisch de sensoren weergeeft in "real-time"
 
