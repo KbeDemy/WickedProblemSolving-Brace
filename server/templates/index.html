@@ -55,29 +55,34 @@
                 </div>
             </div>
 
-            <!-- Rechter kolom -->
-            <div class="main-content">
-                <div class="value-display">
-                    <svg class="gauge-container" viewBox="-50 -50 100 50">
-                        <path id="gauge-bg" 
-                              d="M -45,0 A 45,45 0 0,1 45,0"
-                              fill="none" 
-                              stroke="#1a3d5c" 
-                              stroke-width="10"/>
-                        <path id="gauge-arc" 
-                              d="M -45,0 A 45,45 0 0,1 45,0"
-                              fill="none" 
-                              stroke="#66b2ff" 
-                              stroke-width="10"/>
-                        <text id="gauge-value" 
-                              x="0" 
-                              y="-10" 
-                              text-anchor="middle" 
-                              fill="#90caf9" 
-                              font-size="20">0°</text>
-                    </svg>
-                    <div id="waarde">Huidige hoek</div>
+                 
+                    <div class="main-content">
+                        <div class="value-display">
+                <svg class="gauge-container" viewBox="-50 -50 100 50">
+                    <path id="gauge-bg" 
+                          d="M -45,0 A 45,45 0 0,1 45,0"
+                          fill="none" 
+                          stroke="#1a3d5c" 
+                          stroke-width="10"/>
+                    <path id="gauge-arc" 
+                          d="M -45,0 A 45,45 0 0,1 45,0"
+                          fill="none" 
+                          stroke="#66b2ff" 
+                          stroke-width="10"/>
+                    <text id="gauge-value" 
+                          x="0" 
+                          y="-10" 
+                          text-anchor="middle" 
+                          fill="#90caf9" 
+                          font-size="20">0°</text>
+                </svg>
+                <div id="waarde">Huidige hoek</div>
+            
+                <div id="temperature-display" style="margin-top:10px; font-size:20px; color:#90caf9;">
+                    Temp: <span id="temperature-value">0 °C</span>
                 </div>
+            </div>
+
 
                 <div class="chart-section">
                     <div class="chart-header">
