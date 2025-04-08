@@ -21,6 +21,7 @@ Door grafieken zullen artsen en patiënten zien hoe goed het herstel verloopt.
 - ESP32 voor sensoruitlezing
 - Flask (Python) als webserver
 - HTML, CSS, JavaScript voor de webinterface
+- Temperatruursensor
 
 # Toekomstige verbeteringen
 - de grafiekjes voor het de wekelijkse opvolging
@@ -29,4 +30,4 @@ Door grafieken zullen artsen en patiënten zien hoe goed het herstel verloopt.
 - vochtsensor
 - druksensor
 - emg
-- temperatruursensor
+
