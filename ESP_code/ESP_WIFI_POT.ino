@@ -38,7 +38,7 @@ void loop() {
   sht4.getEvent(&humidity, &temp);
 
   int potentiometerValue = analogRead(potentiometerPin);
-  Serial.println(potentiometerValue);
+
   int Angle = map(potentiometerValue, 0, 4095, 0, 180);
 
   if (WiFi.status() == WL_CONNECTED) {
