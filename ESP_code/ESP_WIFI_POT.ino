@@ -1,5 +1,5 @@
 #include <WiFi.h>
-#include <WiFiManager.h> 
+#include <WiFiManager.h>  // veranderde funcitie in lib void WiFiManager::handleRoot() 
 #include <HTTPClient.h>
 #include "Adafruit_SHT4x.h" // tempsensor
 #include <Adafruit_NeoPixel.h> 
