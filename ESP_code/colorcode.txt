@@ -1,0 +1,4 @@
+paars => Verbind met wifi ?
+rood => fout bij versturen van data!
+groen => alles oké
+geel => wifi is wegvallen/niet meer verbonden!
