@@ -1,116 +1,123 @@
 <!DOCTYPE html>
 <html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brace Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <div class="container">
-        <div class="header-section">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Brace Dashboard</title>
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   </head>
+   <body>
+      <div class="container">
+         <div class="header-section">
             <h1>Brace Dashboard</h1>
             <a href="/logout" class="logout-button">Uitloggen</a>
-        </div>
+         </div>
 
-        <div class="dashboard-layout">
-        
-        <div class="left-column">
-            <div class="main-content">
-                <div class="value-display">
-                    <svg class="gauge-container" viewBox="-50 -50 100 50">
-                        <path id="gauge-bg" 
-                              d="M -45,0 A 45,45 0 0,1 45,0"
-                              fill="none" 
-                              stroke="#1a3d5c" 
-                              stroke-width="10"/>
-                        <path id="gauge-arc" 
-                              d="M -45,0 A 45,45 0 0,1 45,0"
-                              fill="none" 
-                              stroke="#66b2ff" 
-                              stroke-width="10"/>
-                        <text id="gauge-value" 
-                              x="0" 
-                              y="-10" 
-                              text-anchor="middle" 
-                              fill="#90caf9" 
-                              font-size="20">0°</text>
-                    </svg>
-                    <div id="waarde">Huidige hoek</div>
-                    <div id="temperature-display" style="margin-top:10px; font-size:20px; color:#90caf9;">
-                        Temp: <span id="temperature-value">0 °C</span>
-                    </div>
-                </div>
-                      
-                <div class="chart-section">
-                    <div class="chart-header">
-                        <h2>Bewegingsgeschiedenis</h2>
-                        <div class="chart-description">De laatste uren van beweging</div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="historyChart"></canvas>
-                    </div>
-                </div>
-                      
-                <div class="week-overview">
-                    <h2>Weekoverzicht</h2>
-                    <div class="week-grid"></div>
-                </div>
+         <div class="dashboard-layout">
+            <div class="left-column">
+               <div class="main-content">
+                  <div class="settings-wrapper">
+                     <button id="settings-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke>
+                        <path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5z" />
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 >
+                           </svg>
+                           </button>
+                           <div id="settings-panel" class="hidden">
+                        <!-- Zet hier je instellingen form -->
+                        <label for="dailyGoal">Dagelijks doel (°):</label>
+                        <input type="number" id="dailyGoal" min="0">
+                     <button onclick="saveConfig()">Opslaan</button>
+                  </div>
+               </div>
+               <div class="knee-wrapper">
+                  <div class="knee-container">
+                     <div class="knee-visual">
+                        <svg id="knee-svg" width="200" height="200" viewBox="0 0 200 200">
+                           <!-- Thigh (horizontal) -->
+                           <rect x="40" y="80" width="70" height="40" fill="#FFFF00 " rx="10" ry="10"></rect>
+                           <!-- Lower leg (rotates horizontally) -->
+                           <rect id="knee-lower-leg" x="110" y="80" width="70" height="40" fill="#FFFFE0 "
+                              rx="10" ry="10" transform-origin="110 100" transform="rotate(0)">
+                           </rect>
+                           <circle cx="110" cy="100" r="8" fill="#FFD700"></circle>
+                        </svg>
+                     </div>
+                     <div class="knee-values">
+                        <div id="knee-angle-display">Hoek : <span id="angle-value">0</span>°</div>
+                        <div id="temperature-display">Temperatuur : <span id="temperature-value">0 °C</span></div>
+                     </div>
+                  </div>
+               </div>
 
-                <div class="config-section">
-                    <h2>Instellingen</h2>
-                    <div class="config-item">
-                        <label class="tooltip-container">
-                            <span class="setting-title">Dagelijks bewegingsdoel</span>
-                            <span class="tooltip">Het aantal graden dat je dagelijks wilt bewegen.</span>
-                        </label>
-                        <input type="number" id="dailyGoal" min="0" value="1000">
-                    </div>
+               <div class="chart-section">
+                  <div class="chart-header">
+                     <h2>Bewegingsgeschiedenis</h2>
+                     <div class="chart-description">De laatste uren van beweging</div>
+                  </div>
+                  <div class="chart-container">
+                     <canvas id="historyChart"></canvas>
+                  </div>
+               </div>
 
-                    <div class="legend-section">
-                        <h3>Voortgang indicatie</h3>
-                        <div class="color-legend">
-                            <div class="color-item">
-                                <span class="color-dot red"></span>
-                                <span>Minder dan 50% van je doel</span>
-                            </div>
-                            <div class="color-item">
-                                <span class="color-dot yellow"></span>
-                                <span>Tussen 50% en 90% van je doel</span>
-                            </div>
-                            <div class="color-item">
-                                <span class="color-dot green"></span>
-                                <span>90% of meer van je doel</span>
-                            </div>
+               <div class="week-overview">
+                  <h2>Weekoverzicht</h2>
+                  <div class="week-grid"></div>
+               </div>
+
+                            
+          <div class="config-section">
+                  <div class="legend-section">
+                     <h3>Voortgang indicatie</h3>
+                     <div class="color-legend">
+                        <div class="color-item">
+                           <span class="color-dot red"></span>
+                           <span>Minder dan 50% van je doel</span>
                         </div>
-                    </div>
+                        <div class="color-item">
+                           <span class="color-dot yellow"></span>
+                           <span>Tussen 50% en 90% van je doel</span>
+                        </div>
+                        <div class="color-item">
+                           <span class="color-dot green"></span>
+                           <span>90% of meer van je doel</span>
+                        </div>
+                     </div>
+                  </div>
+                  <button class="exercise-button" onclick="window.location.href='/exercises'">Doe je oefeningen!</button>
+               </div>
 
-                    <button class="config-button" onclick="saveConfig()">Instellingen opslaan</button>
-                    <button class="exercise-button" onclick="window.location.href='/exercises'">Doe je oefeningen!</button>
-                </div>
+               <div id="daily-detail" style="display: none;">
+                  <h2>Dagelijks detail</h2>
+                  <div class="chart-container">
+                     <canvas id="dailyChart"></canvas>
+                  </div>
+                  <button id="back-to-week" class="back-button">Terug naar weekoverzicht</button>
+               </div>
+               <div class="footer">
+                  <p>Laatste update: <span id="last-update"></span></p>
+               </div>
             </div>
 
-
-          
-
-                
-
-                <div id="daily-detail" style="display: none;">
-                    <h2>Dagelijks detail</h2>
-                    <div class="chart-container">
-                        <canvas id="dailyChart"></canvas>
-                    </div>
-                    <button id="back-to-week" class="back-button">Terug naar weekoverzicht</button>
-                </div>
-
-                <div class="footer">
-                    <p>Laatste update: <span id="last-update"></span></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
+            <footer class="site-footer">
+               <div class="footer-content">
+                  <p>© 2025 Brace Dashboard. Laatste update: <span id="last-update">16 april 2025</span></p>
+                  <p>Contact: <a href="mailto:support@braceapp.nl">smartbrace@hogent.be</a></p>
+                  <nav>
+                     <a href="/">Home</a> |
+                     <a href="/privacy">Privacy</a> |
+                     <a href="/terms">Voorwaarden</a>
+                  </nav>
+               </div>
+            </footer>
+         </div>
+      </div>
+      </div>
+      </div>
+      <script src="{{ url_for('static', filename='script.js') }}"></script>
+   </body>
 </html>
+
+
+
