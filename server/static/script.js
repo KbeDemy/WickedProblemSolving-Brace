@@ -125,34 +125,42 @@ function saveConfig() {
 }
 
 function updateValues() {
-    fetch('/get_current_value')
-        .then(response => response.json())
-        .then(data => {
-            if (data.angle !== undefined) {
-                updateKneeAngle(data.angle);
-            }
-            if (data.temperature !== undefined && temperatureValueElement) {
-                temperatureValueElement.textContent = `${data.temperature.toFixed(1)} °C`;
-            }
-        })
-        .catch(error => {
-            console.error('Fout bij ophalen van huidige waarde:', error);
-            waardeElement.textContent = "Verbinding verbroken";
-            updateGauge(0);
-            if (temperatureValueElement) {
-                temperatureValueElement.textContent = "– °C";
-            }
-        });
-    
-    fetch('/get_values')
-        .then(response => response.json())
-        .then(data => updateChart(data))
-        .catch(error => console.error('Fout bij ophalen van historische waardes:', error));
+  // Huidige waarde ophalen
+  fetch('/get_current_value')
+    .then(response => response.json())
+    .then(data => {
+      if (data.angle !== undefined) updateKneeAngle(data.angle);
+      if (data.temperature !== undefined) {
+        temperatureValueElement.textContent = `${data.temperature.toFixed(1)} °C`;
+      }
+    })
+    .catch(error => {
+      console.error('Fout bij ophalen van huidige waarde:', error);
+      waardeElement.textContent = "Verbinding verbroken";
+      updateGauge(0);
+      if (temperatureValueElement) {
+        temperatureValueElement.textContent = "– °C";
+      }
+    });
 
-    fetch('/get_week_overview')
-        .then(response => response.json())
-        .then(data => createWeekOverview(data))
-        .catch(error => console.error('Fout bij ophalen van weekoverzicht:', error));
+  // Historische waardes ophalen én lengte loggen
+  fetch('/get_values')
+    .then(response => response.json())
+    .then(data => {
+      // console.log('Aantal punten:', data.length);
+      updateChart(data);
+    })
+    .catch(error =>
+      console.error('Fout bij ophalen van historische waardes:', error)
+    );
+
+  // Weekoverzicht ophalen
+  fetch('/get_week_overview')
+    .then(response => response.json())
+    .then(data => createWeekOverview(data))
+    .catch(error =>
+      console.error('Fout bij ophalen van weekoverzicht:', error)
+    );
 }
 
 // Event Listeners
