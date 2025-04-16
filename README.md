@@ -22,8 +22,10 @@ Door grafieken zullen artsen en patiënten zien hoe goed het herstel verloopt.
 - Flask (Python) als webserver
 - HTML, CSS, JavaScript voor de webinterface
 - Temperatruursensor
+- flex/buig sensor
 
 # Toekomstige verbeteringen
+- in de plaats van GAUGE een gevricht voor de hoek
 - de grafiekjes voor het de wekelijkse opvolging
 - een grafiek maken voor alle dat van de gebruiker over heel de periode
 - de "doe je oefeningen knop dingen laten doen"
