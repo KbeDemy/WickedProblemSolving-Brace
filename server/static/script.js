@@ -1,6 +1,4 @@
 const MAX_VALUE = 180;
-const GAUGE_CIRCUMFERENCE = 157;
-const MAX_DATA_POINTS = 500;
 const DAYS_OF_WEEK = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
 const MOVEMENT_THRESHOLD = 5;
 
@@ -8,8 +6,7 @@ let config = {
     target_daily_movement: 600000
 };
 
-const gaugeArc = document.getElementById('gauge-arc');
-const gaugeValue = document.getElementById('gauge-value');
+
 const waardeElement = document.getElementById('waarde');
 const temperatureValueElement = document.getElementById('temperature-value'); // ✅ Nieuw
 
@@ -88,76 +85,23 @@ function createWeekOverview(weekData) {
     });
 }
 
-function showDailyDetail(dayIndex) {
-    const weekOverview = document.querySelector('.week-overview');
-    const dailyDetail = document.getElementById('daily-detail');
-
-    if (weekOverview && dailyDetail) {
-        weekOverview.style.display = 'none';
-        dailyDetail.style.display = 'block';
-
-        const ctx = document.getElementById('dailyChart').getContext('2d');
-        if (window.dailyChart) window.dailyChart.destroy();
-
-        window.dailyChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Hoek',
-                    data: [],
-                    borderColor: '#66b2ff',
-                    backgroundColor: 'rgba(102, 178, 255, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: MAX_VALUE
-                    }
-                }
-            }
-        });
-
-        fetch(`/get_day_values/${dayIndex}`)
-            .then(response => response.json())
-            .then(data => {
-                const labels = data.map(item => {
-                    const date = new Date(item.timestamp);
-                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                });
-                const values = data.map(item => item.value);
-
-                window.dailyChart.data.labels = labels;
-                window.dailyChart.data.datasets[0].data = values;
-                window.dailyChart.update();
-            })
-            .catch(error => console.error('Fout bij ophalen dagelijkse data:', error));
-    }
-}
 
 function updateKneeAngle(angle) {
   const lowerLeg = document.getElementById('knee-lower-leg');
   if (lowerLeg) {
-    lowerLeg.style.transform = `rotate(${angle}deg)`;
+    const rotated = 180 - angle;
+    lowerLeg.style.transform = `rotate(${rotated}deg)`;
     document.getElementById('angle-value').textContent = angle;
   }
 }
 
 
 function updateChart(data) {
-    const recentData = data.slice(-500);
-    const labels = recentData.map(item => {
+    const labels = data.map(item => {
         const date = new Date(item.timestamp);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     });
-    const values = recentData.map(item => item.angle);
-
+    const values = data.map(item => item.angle);
     historyChart.data.labels = labels;
     historyChart.data.datasets[0].data = values;
     historyChart.update('none');
@@ -199,7 +143,8 @@ function updateValues() {
                 temperatureValueElement.textContent = "– °C";
             }
         });
-fetch('/get_values')
+    
+    fetch('/get_values')
         .then(response => response.json())
         .then(data => updateChart(data))
         .catch(error => console.error('Fout bij ophalen van historische waardes:', error));
@@ -231,7 +176,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-
-
-
-
