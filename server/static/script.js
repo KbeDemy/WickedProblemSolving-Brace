@@ -1,3 +1,4 @@
+
 const MAX_VALUE = 180;
 const GAUGE_CIRCUMFERENCE = 157;
 const MAX_DATA_POINTS = 500;
@@ -141,6 +142,18 @@ function showDailyDetail(dayIndex) {
     }
 }
 
+function updateKneeAngle(angle) {
+  const lowerLeg = document.getElementById('knee-lower-leg');
+  if (lowerLeg) {
+    lowerLeg.style.transform = `rotate(${angle}deg)`;
+    document.getElementById('angle-value').textContent = angle;
+  }
+}
+
+
+
+
+
 function updateGauge(value) {
     const normalizedValue = Math.min(Math.max(value, 0), MAX_VALUE);
     const fillPercentage = normalizedValue / MAX_VALUE;
@@ -185,7 +198,7 @@ function updateValues() {
         .then(response => response.json())
         .then(data => {
             if (data.angle !== undefined) {
-                updateGauge(data.angle);
+                updateKneeAngle(data.angle);
             }
             if (data.temperature !== undefined && temperatureValueElement) {
                 temperatureValueElement.textContent = `${data.temperature.toFixed(1)} °C`;
@@ -199,8 +212,7 @@ function updateValues() {
                 temperatureValueElement.textContent = "– °C";
             }
         });
-
-    fetch('/get_values')
+fetch('/get_values')
         .then(response => response.json())
         .then(data => updateChart(data))
         .catch(error => console.error('Fout bij ophalen van historische waardes:', error));
@@ -217,9 +229,22 @@ backButton.addEventListener('click', () => {
     document.querySelector('.week-overview').style.display = 'block';
 });
 
-// Initial setup
 document.addEventListener('DOMContentLoaded', function () {
     loadConfig();
     updateValues();
     setInterval(updateValues, 500);
+
+    // Settings gear logic
+    const settingsButton = document.getElementById('settings-button');
+    const settingsPanel = document.getElementById('settings-panel');
+
+    if (settingsButton && settingsPanel) {
+        settingsButton.addEventListener('click', () => {
+            settingsPanel.classList.toggle('hidden');
+        });
+    }
 });
+
+
+
+
