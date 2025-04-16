@@ -1,4 +1,3 @@
-
 const MAX_VALUE = 180;
 const GAUGE_CIRCUMFERENCE = 157;
 const MAX_DATA_POINTS = 500;
@@ -150,18 +149,6 @@ function updateKneeAngle(angle) {
   }
 }
 
-
-
-
-
-function updateGauge(value) {
-    const normalizedValue = Math.min(Math.max(value, 0), MAX_VALUE);
-    const fillPercentage = normalizedValue / MAX_VALUE;
-    const dashArray = `${fillPercentage * GAUGE_CIRCUMFERENCE} ${GAUGE_CIRCUMFERENCE}`;
-
-    gaugeArc.style.strokeDasharray = dashArray;
-    gaugeValue.textContent = `${Math.round(normalizedValue)}°`;
-}
 
 function updateChart(data) {
     const recentData = data.slice(-500);
