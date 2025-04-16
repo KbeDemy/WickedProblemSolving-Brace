@@ -2,7 +2,6 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #000957;
-    color: #FFFFFF; /* Already white, no change needed */
     margin: 0;
     padding: 20px;
 }
@@ -34,7 +33,7 @@ body {
 
 .form-group label {
     display: block;
-    color: #FFFFFF; /* Changed from #577BC1 to white */
+    color: #FFFFFF; 
     margin-bottom: 8px;
     font-size: 14px;
 }
@@ -45,7 +44,7 @@ body {
     border: 1px solid #FFEB00;
     border-radius: 4px;
     background-color: #000957;
-    color: #FFFFFF; /* Already white, no change needed */
+    color: #FFFFFF; 
     font-size: 16px;
     box-sizing: border-box;
 }
@@ -60,7 +59,7 @@ body {
     width: 100%;
     padding: 12px;
     background-color: #FFEB00;
-    color: #FFFFFF; /* Changed from #000957 to white */
+    color: #FFFFFF; 
     border: none;
     border-radius: 4px;
     font-size: 16px;
@@ -74,7 +73,7 @@ body {
 }
 .error-message {
     background-color: #ff4444;
-    color: #FFFFFF; /* Already white, no change needed */
+    color: #FFFFFF; 
     padding: 10px;
     border-radius: 4px;
     margin-bottom: 20px;
@@ -94,7 +93,7 @@ body {
 /* Typography */
 h1, h2 {
     text-align: center;
-    color: #FFFFFF; /* Changed from #FFEB00 to white */
+    color: #FFFFFF; 
     margin-bottom: 24px;
 }
 
@@ -132,7 +131,7 @@ h2 {
 
 .knee-values {
     font-size: 20px;
-    color: #FFFFFF; /* Changed from #577BC1 to white */
+    color: #FFFFFF; 
     line-height: 1.6;
 }
 
@@ -157,7 +156,7 @@ h2 {
 }
 
 .chart-description {
-    color: #FFFFFF; /* Already white, no change needed */
+    color: #FFFFFF; 
     font-size: 16px;
     margin-top: -15px;
     margin-bottom: 20px;
@@ -185,13 +184,13 @@ h2 {
     cursor: pointer;
     padding: 5px;
     font-size: 24px;
-    color: #FFFFFF; /* Changed from #FFEB00 to white */
+    color: #FFFFFF;
 }
 
 .icon-gear {
     width: 30px;
     height: 30px;
-    stroke: #FFFFFF; /* Changed from #FFEB00 to white */
+    stroke: #FFFFFF; 
 }
 
 #settings-panel {
@@ -263,7 +262,7 @@ h2 {
 }
 
 .score-explanation h3 {
-    color: #FFFFFF; /* Changed from #FFEB00 to white */
+    color: #FFFFFF; 
     font-size: 16px;
     margin: 0 0 15px 0;
 }
@@ -277,7 +276,7 @@ h2 {
 .score-explanation li {
     display: flex;
     align-items: center;
-    color: #FFFFFF; /* Changed from #577BC1 to white */
+    color: #FFFFFF; 
     margin-bottom: 10px;
     font-size: 14px;
 }
@@ -292,7 +291,7 @@ h2 {
 
 .config-button {
     background-color: #FFEB00;
-    color: #FFFFFF; /* Changed from #000957 to white */
+    color: #FFFFFF; 
     border: none;
     border-radius: 4px;
     padding: 10px 20px;
@@ -337,39 +336,23 @@ h2 {
 
 .day-name {
     font-size: 14px;
-    color: #FFFFFF; /* Changed from #577BC1 to white */
+    color: #FFFFFF; 
     margin-bottom: 8px;
 }
 
 .day-value {
     font-size: 20px;
     font-weight: bold;
-    color: #FFFFFF; /* Already white, no change needed */
+    color: #FFFFFF; 
     margin: 8px 0;
 }
 
 .day-percentage {
     font-size: 12px;
-    color: #FFFFFF; /* Changed from #577BC1 to white */
+    color: #FFFFFF; 
     opacity: 0.8;
 }
 
-/* Daily Detail */
-.back-button {
-    background-color: #FFEB00;
-    color: #FFFFFF; /* Changed from #000957 to white */
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    margin-top: 10px;
-}
-
-.back-button:hover {
-    background-color: rgba(255, 235, 0, 0.8);
-}
 
 /* Header Section */
 .header-section {
@@ -384,7 +367,7 @@ h2 {
 }
 .logout-button {
     background-color: #ff4444;
-    color: #FFFFFF; /* Already white, no change needed */
+    color: #FFFFFF; 
     text-decoration: none;
     padding: 8px 16px;
     border-radius: 4px;
@@ -402,26 +385,23 @@ h2 {
     margin-top: 20px;
     padding: 15px 0;
     font-size: 14px;
-    color: #FFFFFF; /* Changed from #577BC1 to white */
+    color: #FFFFFF; 
     border-top: 1px solid #577BC1;
 }
 
 .site-footer {
     background-color: #000957;
-    color: #FFFFFF; /* Changed from #577BC1 to white */
+    color: #FFFFFF; 
     text-align: center;
     padding: 20px;
     font-size: 0.875rem;
 }
 
 .site-footer a {
-    color: #FFFFFF; /* Changed from #FFEB00 to white */
+    color: #FFFFFF; 
     text-decoration: none;
 }
 
-.site-footer a:hover {
-    text-decoration: underline;
-}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -449,30 +429,7 @@ h2 {
     }
 }
 
-/* Tooltip styles */
-.tooltip-container {
-    position: relative;
-    cursor: help;
-}
-.tooltip {
-    display: none;
-    position: absolute;
-    background-color: #577BC1;
-    color: #FFFFFF; /* Already white, no change needed */
-    padding: 10px;
-    border-radius: 4px;
-    font-size: 14px;
-    width: 250px;
-    top: 100%;
-    left: 0;
-    margin-top: 5px;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
-}
 
-.tooltip-container:hover .tooltip {
-    display: block;
-}
 
 /* Color legend styles */
 .color-legend {
@@ -486,7 +443,7 @@ h2 {
     display: flex;
     align-items: center;
     margin-bottom: 8px;
-    color: #FFFFFF; /* Changed from #577BC1 to white */
+    color: #FFFFFF; 
     font-size: 14px;
 }
 
@@ -519,8 +476,4 @@ h2 {
     display: block;
     margin: 10px auto 0;
     width: 200px;
-}
-
-.exercise-button:hover {
-    background-color: #00E25B;
 }
