@@ -1,0 +1,123 @@
+1. Huidige Waarden (500 Ruwe Waarden)
+Doel: Toon de laatste 500 ruwe waardes van de flexsensor (hoekwaarde).
+
+Hoe: Maak een grafiek die de laatste 500 waarde-punten toont. Dit kan direct uit de database komen, bijvoorbeeld de laatste 500 hoeken die zijn geregistreerd met hun tijdstempel.
+
+Implementatie:
+
+Gebruik een eenvoudige grafiek (bijvoorbeeld een lijn- of scatter plot) die de hoekwaarde op de Y-as en de tijd op de X-as toont.
+
+In je server moet je een route creëren die de laatste 500 waarden ophaalt (/get_values), en deze via de frontend in een grafiek weergeeft.
+
+2. Daggrafiek (Deltas per Minuut)
+Doel: Toon de verandering in hoek per minuut over de afgelopen 24 uur (delta's per minuut).
+
+Hoe: Bereken de delta per minuut (verandering in hoek) voor elke minuut van de dag, en toon dit in een grafiek.
+
+Er zijn 1440 minuten in een dag, dus voor elke minuut bereken je de verandering in hoek t.o.v. de vorige waarde.
+
+Implementatie: Je berekent de verandering (delta) voor elke minuut en stuurt de data door naar de frontend.
+
+Maak een route /get_day_values op de server om de data van de afgelopen 24 uur op te halen en de delta's per minuut te berekenen.
+
+3. Weekgrafiek (Deltas per Uur)
+Doel: Toon de verandering in hoek per uur over de afgelopen 7 dagen.
+
+Hoe: Bereken de totale delta per uur voor de afgelopen week.
+
+Er zijn 168 uur in een week. Voor elk uur bereken je de verandering in hoek (delta) ten opzichte van de vorige waarde binnen dat uur.
+
+Implementatie: Maak een route /get_week_overview op de server die de data voor de afgelopen week ophaalt en de delta's per uur berekent.
+
+Toon de totale verandering per uur in een grafiek.
+
+4. Totale Historiek (Deltas per Dag)
+Doel: Toon de totale verandering in hoek per dag (delta's per dag) voor alle dagen sinds het begin van het gebruik van de brace.
+
+Hoe: Bereken de verandering per dag door de hoeken per dag te analyseren.
+
+Je hebt elke dag de totale verandering in hoek nodig.
+
+Implementatie: Maak een route /get_total_history op de server die de totale delta's per dag berekent, vanaf de eerste geregistreerde waarde tot nu.
+
+Toon deze deltas per dag op een grafiek.
+
+Gedetailleerde Stappen
+Database Routes en Data Verwerking
+
+/get_values: Haal de laatste 500 waarden op.
+
+python
+Kopiëren
+Bewerken
+@app.route('/get_values')
+@login_required
+def get_values():
+    # Haal laatste 500 waarden op
+/get_day_values: Bereken de verandering per minuut van de afgelopen 24 uur.
+
+python
+Kopiëren
+Bewerken
+@app.route('/get_day_values')
+@login_required
+def get_day_values():
+    # Bereken deltas per minuut voor 24 uur
+/get_week_overview: Bereken de verandering per uur voor de afgelopen week.
+
+python
+Kopiëren
+Bewerken
+@app.route('/get_week_overview')
+@login_required
+def get_week_overview():
+    # Bereken deltas per uur voor de afgelopen week
+/get_total_history: Bereken de verandering per dag voor de totale historiek.
+
+python
+Kopiëren
+Bewerken
+@app.route('/get_total_history')
+@login_required
+def get_total_history():
+    # Bereken deltas per dag voor alle tijd
+Frontend (JavaScript en Grafieken)
+
+Voor de grafieken kun je Chart.js gebruiken om de data te visualiseren.
+
+Voor de daggrafiek en weekgrafiek: Toon de verandering (delta's) per minuut of per uur door de data die je van de server ontvangt om te zetten in de juiste vorm (bijvoorbeeld een array van delta's).
+
+Gebruik fetch() om de data op te halen en de grafieken dynamisch bij te werken.
+
+javascript
+Kopiëren
+Bewerken
+fetch('/get_day_values')
+    .then(response => response.json())
+    .then(data => updateDayChart(data));
+Delta Calculaties
+
+Bereken de delta (verandering) door het verschil te nemen tussen opeenvolgende waarden. Bijvoorbeeld, voor de daggrafiek:
+
+javascript
+Kopiëren
+Bewerken
+let deltas = [];
+for (let i = 1; i < data.length; i++) {
+    let delta = Math.abs(data[i].angle - data[i - 1].angle);
+    deltas.push(delta);
+}
+Rendering van Grafieken
+
+Voor elke grafiek kun je de gegevens zoals deltas gebruiken om de grafiek bij te werken. Bijvoorbeeld:
+
+javascript
+Kopiëren
+Bewerken
+function updateDayChart(data) {
+    const labels = data.map(item => item.timestamp);
+    const deltas = data.map(item => item.delta);  // Delta berekend in de backend
+    historyChart.data.labels = labels;
+    historyChart.data.datasets[0].data = deltas;
+    historyChart.update();
+}
