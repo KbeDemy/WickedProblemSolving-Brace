@@ -140,10 +140,15 @@ def get_values():
     print("Fetching recent values...")
     conn = sqlite3.connect('brace_data.db')
     c = conn.cursor()
-    c.execute('SELECT angle, timestamp FROM sensor_values ORDER BY timestamp DESC LIMIT 500')
-    values = [{'angle': row[0], 'timestamp': row[1]} for row in c.fetchall()]
+    c.execute('SELECT angle, timestamp FROM sensor_values ORDER BY timestamp ASC')
+
+    rows = c.fetchall()
     conn.close()
+
+    values = [{'angle': row[0], 'timestamp': row[1]} for row in rows]
     print(f"Fetched {len(values)} values.")
+
+    
     return jsonify(values)
 
 @app.route('/get_week_overview')
