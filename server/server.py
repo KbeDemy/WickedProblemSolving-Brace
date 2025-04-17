@@ -134,22 +134,7 @@ def get_current_value():
     print("No current value found.")
     return jsonify({'angle': 0, 'temperature': 0})
 
-@app.route('/get_values')
-@login_required
-def get_values():
-    print("Fetching recent values...")
-    conn = sqlite3.connect('brace_data.db')
-    c = conn.cursor()
-    c.execute('SELECT angle, timestamp FROM sensor_values ORDER BY timestamp ASC')
 
-    rows = c.fetchall()
-    conn.close()
-
-    values = [{'angle': row[0], 'timestamp': row[1]} for row in rows]
-    print(f"Fetched {len(values)} values.")
-
-    
-    return jsonify(values)
 
 @app.route('/get_week_overview')
 @login_required
@@ -187,30 +172,107 @@ def get_week_overview():
     print(f"Week overview data: {week_data}")
     return jsonify(week_data)
 
-@app.route('/get_day_values/<int:day_index>')
+
+@app.route('/get_moment_values')
 @login_required
-def get_day_values(day_index):
-    print(f"Fetching data for day {day_index}...")
-    
-    if not 0 <= day_index <= 6:
-        return jsonify({'error': 'Invalid day index'}), 400
-        
+def get_moment_values():
+    print("Fetching moment values (latest 500)...")
     conn = sqlite3.connect('brace_data.db')
     c = conn.cursor()
-    
+    c.execute('SELECT angle, timestamp FROM sensor_values ORDER BY timestamp DESC LIMIT 500')
+    values = [{'angle': row[0], 'timestamp': row[1]} for row in reversed(c.fetchall())]
+    conn.close()
+    return jsonify(values)
+
+
+@app.route('/get_day_overview')
+@login_required
+def get_day_overview():
+    print("Fetching day overview (delta per minuut)...")
+    conn = sqlite3.connect('brace_data.db')
+    c = conn.cursor()
+
+    now = datetime.now()
+    start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    end = start + timedelta(days=1)
+
+    c.execute('''SELECT angle, timestamp FROM sensor_values
+                 WHERE timestamp >= ? AND timestamp < ?
+                 ORDER BY timestamp ASC''', (start.isoformat(), end.isoformat()))
+    data = c.fetchall()
+
+    minute_data = []
+    last_minute = None
+    deltas = []
+    for i in range(1, len(data)):
+        ts = datetime.fromisoformat(data[i][1])
+        minute = ts.replace(second=0, microsecond=0)
+        delta = abs(data[i][0] - data[i - 1][0])
+
+        if last_minute is None or minute != last_minute:
+            deltas.append(delta)
+            last_minute = minute
+        else:
+            deltas[-1] += delta
+
+    conn.close()
+    print(f"Day overview: {len(deltas)} punten.")
+    return jsonify(deltas)
+
+
+@app.route('/get_week_overview')
+@login_required
+def get_week_overview():
+    print("Fetching week overview (delta per dag)...")
+    conn = sqlite3.connect('brace_data.db')
+    c = conn.cursor()
+
     today = datetime.now()
     start_of_week = today - timedelta(days=today.weekday())
-    day_start = start_of_week + timedelta(days=day_index)
-    day_end = day_start + timedelta(days=1)
-    
-    c.execute('''SELECT angle, timestamp FROM sensor_values WHERE timestamp >= ? AND timestamp < ? ORDER BY timestamp ASC''',
-              (day_start.isoformat(), day_end.isoformat()))
-    
-    values = [{'angle': row[0], 'timestamp': row[1]} for row in c.fetchall()]
+    data = []
+
+    for i in range(7):
+        day_start = start_of_week + timedelta(days=i)
+        day_end = day_start + timedelta(days=1)
+
+        c.execute('''SELECT angle, timestamp FROM sensor_values
+                     WHERE timestamp >= ? AND timestamp < ?
+                     ORDER BY timestamp ASC''', (day_start.isoformat(), day_end.isoformat()))
+        values = c.fetchall()
+
+        total = 0
+        for j in range(1, len(values)):
+            total += abs(values[j][0] - values[j-1][0])
+        data.append(total)
+
     conn.close()
-    
-    print(f"Fetched {len(values)} values for day {day_index}.")
-    return jsonify(values)
+    print(f"Week overview: {data}")
+    return jsonify(data)
+
+
+@app.route('/get_total_history')
+@login_required
+def get_total_history():
+    print("Fetching total history (delta per dag)...")
+    conn = sqlite3.connect('brace_data.db')
+    c = conn.cursor()
+
+    c.execute('''SELECT angle, timestamp FROM sensor_values ORDER BY timestamp ASC''')
+    all_values = c.fetchall()
+    conn.close()
+
+    history = {}
+    for i in range(1, len(all_values)):
+        angle_prev, ts_prev = all_values[i-1]
+        angle_curr, ts_curr = all_values[i]
+
+        day = datetime.fromisoformat(ts_curr).strftime('%Y-%m-%d')
+        delta = abs(angle_curr - angle_prev)
+        history[day] = history.get(day, 0) + delta
+
+    result = [{'dag': day, 'delta': history[day]} for day in sorted(history)]
+    print(f"Totaal historiek: {len(result)} dagen.")
+    return jsonify(result)
 
 @app.route('/exercises')
 @login_required
