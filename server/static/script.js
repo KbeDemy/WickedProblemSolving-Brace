@@ -86,8 +86,15 @@ function createWeekOverview(weekData) {
 }
 
 function updateChart(labels, values) {
+    const maxValue = Math.max(...values);
+    const paddedMax = Math.ceil(maxValue * 1.1); // 10% marge erbovenop
+    const yMax = Math.max(180, paddedMax); // nooit onder 180
+
     historyChart.data.labels = labels;
     historyChart.data.datasets[0].data = values;
+    
+    historyChart.options.scales.y.max = yMax;
+
     historyChart.update('none');
 }
 
