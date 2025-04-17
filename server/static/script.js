@@ -210,11 +210,8 @@ function updateValues() {
   fetch('/get_week_overview')
     .then(response => response.json())
     .then(data => createWeekOverview(data))
-    .catch(error =>  console.error('Fout bij ophalen van weekoverzicht:', error)
-     
-     );
-    }
-});
+    .catch(error =>  console.error('Fout bij ophalen van weekoverzicht:', error));
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     loadConfig();
