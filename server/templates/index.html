@@ -56,6 +56,12 @@
                      <h2>Bewegingsgeschiedenis</h2>
                      <div class="chart-description">De laatste uren van beweging</div>
                   </div>
+                  <div class="tabs">
+                     <button class="tab-btn active" onclick="loadTab('live', this)">Live</button>
+                     <button class="tab-btn" onclick="loadTab('daily', this)">Dag</button>
+                     <button class="tab-btn" onclick="loadTab('weekly', this)">Week</button>
+                     <button class="tab-btn" onclick="loadTab('total', this)">Totaal</button>
+                  </div>
                   <div class="chart-container">
                      <canvas id="historyChart"></canvas>
                   </div>
@@ -65,8 +71,7 @@
                   <h2>Weekoverzicht</h2>
                   <div class="week-grid"></div>
                </div>
-
-                            
+                           
           <div class="config-section">
                   <div class="legend-section">
                      <h3>Voortgang indicatie</h3>
