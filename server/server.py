@@ -220,35 +220,6 @@ def get_day_overview():
     return jsonify(deltas)
 
 
-@app.route('/get_week_overview')
-@login_required
-def get_week_overview():
-    print("Fetching week overview (delta per dag)...")
-    conn = sqlite3.connect('brace_data.db')
-    c = conn.cursor()
-
-    today = datetime.now()
-    start_of_week = today - timedelta(days=today.weekday())
-    data = []
-
-    for i in range(7):
-        day_start = start_of_week + timedelta(days=i)
-        day_end = day_start + timedelta(days=1)
-
-        c.execute('''SELECT angle, timestamp FROM sensor_values
-                     WHERE timestamp >= ? AND timestamp < ?
-                     ORDER BY timestamp ASC''', (day_start.isoformat(), day_end.isoformat()))
-        values = c.fetchall()
-
-        total = 0
-        for j in range(1, len(values)):
-            total += abs(values[j][0] - values[j-1][0])
-        data.append(total)
-
-    conn.close()
-    print(f"Week overview: {data}")
-    return jsonify(data)
-
 
 @app.route('/get_total_history')
 @login_required
