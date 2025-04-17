@@ -48,6 +48,52 @@ const historyChart = new Chart(ctx, {
     }
 });
 
+function groupDeltas(data, timeUnit) {
+    const deltas = [];
+    let currentGroup = [];
+    let previousTime = null;
+
+    for (let i = 0; i < data.length; i++) {
+        const { angle, timestamp } = data[i];
+        const time = new Date(timestamp);
+
+        const groupChanged = previousTime && (
+            (timeUnit === 'minute' && time.getMinutes() !== previousTime.getMinutes()) ||
+            (timeUnit === 'hour' && time.getHours() !== previousTime.getHours()) ||
+            (timeUnit === 'day' && time.getDate() !== previousTime.getDate())
+        );
+
+        if (groupChanged) {
+            const delta = Math.abs(currentGroup[currentGroup.length - 1] - currentGroup[0]);
+            deltas.push(delta);
+            currentGroup = [];
+        }
+
+        currentGroup.push(angle);
+        previousTime = time;
+    }
+
+    if (currentGroup.length > 0) {
+        const delta = Math.abs(currentGroup[currentGroup.length - 1] - currentGroup[0]);
+        deltas.push(delta);
+    }
+
+    return deltas;
+}
+
+function updateChartWithDeltas(data, timeUnit) {
+    const deltas = groupDeltas(data, timeUnit);
+    const labels = deltas.map((_, i) =>
+        timeUnit === 'minute' ? `${i + 1}m` :
+        timeUnit === 'hour' ? `${i + 1}u` :
+        `Dag ${i + 1}`
+    );
+
+    historyChart.data.labels = labels;
+    historyChart.data.datasets[0].data = deltas;
+    historyChart.update('none');
+}
+
 function getColorForValue(value) {
     const normalizedValue = (value / config.target_daily_movement) * 100;
     if (normalizedValue < 30) return '#ff4444';
@@ -144,29 +190,30 @@ function updateValues() {
     });
 
   // Historische waardes ophalen én lengte loggen
-  fetch('/get_values')
-    .then(response => response.json())
-    .then(data => {
-      // console.log('Aantal punten:', data.length);
-      updateChart(data);
-    })
-    .catch(error =>
-      console.error('Fout bij ophalen van historische waardes:', error)
-    );
+     fetch('/get_values')
+        .then(response => response.json())
+        .then(data => {
+            const selectedTab = document.querySelector('.tab.active')?.id;
+            if (selectedTab === 'tab-dag') {
+                updateChartWithDeltas(data, 'minute');
+            } else if (selectedTab === 'tab-week') {
+                updateChartWithDeltas(data, 'hour');
+            } else if (selectedTab === 'tab-totaal') {
+                updateChartWithDeltas(data, 'day');
+            } else {
+                updateChart(data);  // fallback
+            }
+        })
+        .catch(error => console.error('Fout bij ophalen van historische waardes:', error));
 
   // Weekoverzicht ophalen
   fetch('/get_week_overview')
     .then(response => response.json())
     .then(data => createWeekOverview(data))
-    .catch(error =>
-      console.error('Fout bij ophalen van weekoverzicht:', error)
-    );
-}
-
-// Event Listeners
-backButton.addEventListener('click', () => {
-    dailyDetail.style.display = 'none';
-    document.querySelector('.week-overview').style.display = 'block';
+    .catch(error =>  console.error('Fout bij ophalen van weekoverzicht:', error)
+     
+     );
+    }
 });
 
 document.addEventListener('DOMContentLoaded', function () {
