@@ -143,6 +143,35 @@ h2 {
     transition: transform 0.3s ease;
 }
 
+/* Tabs boven de chart */
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    background-color: #FFFFFF;
+    color: #577BC1;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    background-color: #E0E0E0;
+}
+
+.tab-btn.active {
+    background-color: #FFD700; /* of #FFC107 voor iets zachter geel */
+    color: #000000;
+}
+
 /* Chart Sections */
 .chart-section {
     background-color: #577BC1;
