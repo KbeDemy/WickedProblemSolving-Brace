@@ -1,5 +1,5 @@
 #include <WiFi.h>
-#include <WiFiManager.h>  // veranderde funcitie in lib void WiFiManager::handleRoot() 
+#include <WiFiManager.h>  
 #include <HTTPClient.h>
 #include "Adafruit_SHT4x.h" // tempsensor
 #include <Adafruit_NeoPixel.h> 
@@ -7,21 +7,22 @@
 const char* serverName = "http://192.168.0.242:5000/update";  // Controleer dit IP!
 
 const uint8_t potentiometerPin = 32; // GPIO ...
-const uint8_t onPin = 13; 
+const uint8_t flexsensorPin = 33;
+const uint8_t onLed = 13; 
 const uint8_t debugLed = 0;
 
 Adafruit_SHT4x sht4 = Adafruit_SHT4x();
 Adafruit_NeoPixel pixels(1, debugLed, NEO_GRB + NEO_KHZ800); // 1 = aantal leds
+WiFiManager wifiManager;
 
 void setup() {
   Serial.begin(115200);
   pixels.begin(); 
 
-  pinMode(onPin, OUTPUT);
-  digitalWrite(onPin, HIGH);
+  pinMode(onLed, OUTPUT);
+  digitalWrite(onLed, HIGH);
 
-  WiFiManager wifiManager;
-  wifiManager.resetSettings(); // UNCOMMENT FOR TESTING!
+  // wifiManager.resetSettings(); // UNCOMMENT FOR TESTING!
 
   changeNeoColor(100,0,100);
 
@@ -47,8 +48,10 @@ void loop() {
   sht4.getEvent(&humidity, &temp);
 
   int potentiometerValue = analogRead(potentiometerPin);
- 
   int Angle = map(potentiometerValue, 0, 4095, 0, 180);
+
+  int flexsensorValue = analogRead(flexsensorPin);
+
 
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
@@ -61,11 +64,13 @@ void loop() {
     Serial.print("Verstuurde data: ");
     Serial.println(jsonData);
 
+    int8_t rssi = WiFi.RSSI();
+
     int httpResponseCode = http.POST(jsonData);
 
     if (httpResponseCode > 0) {
       Serial.println("Server Responded!");
-       changeNeoColor(0,100,0);
+      changeRSSIColor();
     } else {
       Serial.print("Fout bij versturen! HTTP-code: ");
       Serial.println(httpResponseCode);
@@ -84,4 +89,21 @@ void loop() {
 void changeNeoColor(uint8_t red, uint8_t green, uint8_t bleu){
   pixels.setPixelColor(0, pixels.Color(red, green, bleu));
   pixels.show(); 
+}
+
+void changeRSSIColor() {
+  int rssi = WiFi.RSSI();
+  
+  Serial.print("RSSI (signaalsterkte): ");
+  Serial.println(WiFi.RSSI()); 
+
+  rssi = constrain(rssi, -80, -40);
+  // map the value 
+  float strength = (rssi + 80) / 40.0;
+
+  uint8_t red = (1.0 - strength) * 75;   
+  uint8_t green = 125;                    
+  uint8_t blue = 0;                       
+
+  changeNeoColor(red, green, blue);
 }
