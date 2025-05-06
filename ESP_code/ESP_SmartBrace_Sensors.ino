@@ -7,7 +7,7 @@
 const char* serverName = "http://192.168.0.242:5000/update";  // Controleer dit IP!
 
 const uint8_t potentiometerPin = 32; // GPIO ...
-const uint8_t flexsensorPin = 33;
+const uint8_t druksensorPin = 33;
 const uint8_t onLed = 13; 
 const uint8_t debugLed = 0;
 
@@ -50,8 +50,12 @@ void loop() {
   int potentiometerValue = analogRead(potentiometerPin);
   int Angle = map(potentiometerValue, 0, 4095, 0, 180);
 
-  int flexsensorValue = analogRead(flexsensorPin);
-
+  int druksensorValue = analogRead(druksensorPin);
+  Serial.print(druksensorValue);
+  Serial.print( " , ");
+  int gewicht = druksensorValue/4095.0 * 5000;
+  Serial.print("gewicht  : ");
+  Serial.println(gewicht);
 
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
